@@ -26,7 +26,7 @@ export default class MagicZen extends Widget {
         open
         onClose={this.props.onClose}
       >
-        <MagicBackground id={'yeti'}>
+        <MagicBackground>
           <div className={this.styles.classNames.notice}>
             Appuyez sur <span className={this.styles.classNames.key}>ESC</span>{' '}
             pour quitter le mode zen
