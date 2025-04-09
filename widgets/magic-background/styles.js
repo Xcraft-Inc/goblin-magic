@@ -17,23 +17,27 @@ window.CSS.registerProperty({
 
 window.CSS.registerProperty({
   name: '--space-dark',
-  syntax: '<url>',
   inherits: false,
   initialValue: `url(${BG_MILK})`,
 });
 
 window.CSS.registerProperty({
   name: '--space-light',
-  syntax: '<url>',
   inherits: false,
   initialValue: `url(${BG_WHITE})`,
 });
 
-export const propNames = ['useBackgroundColor', 'backgroundColor'];
+export const propNames = [
+  'useBackgroundColor',
+  'backgroundColor',
+  'plainColor',
+];
 export default function styles(theme, props) {
+  const {plainColor} = props;
+
   const main = {
-    '--space-dark': `url(${images['milk']})`,
-    '--space-light': `url(${images['white']})`,
+    '--space-dark': plainColor ? '#0D1D3C' : `url(${images['milk']})`,
+    '--space-light': plainColor ? '#CDDFEC' : `url(${images['white']})`,
     '--accent-color': `${props.backgroundColor || 'white'}`,
     '--button-accent-color':
       'color-mix(in srgb, var(--accent-color), #ccc 40%)',
@@ -42,7 +46,7 @@ export default function styles(theme, props) {
     'width': '100vw',
     'display': 'flex',
     'flexDirection': 'column',
-    'backgroundImage': `linear-gradient(to bottom, transparent 40%, var(--aurora-color)), var(--space-dark)`,
+    'background': `linear-gradient(to bottom, transparent 40%, var(--aurora-color)), var(--space-dark)`,
     'backgroundSize': 'cover',
     'overflow': 'auto',
     'transition': '--space-dark 3s, --aurora-color 3s',
@@ -50,7 +54,7 @@ export default function styles(theme, props) {
     '@media (prefers-color-scheme: light)': {
       // backgroundImage: `linear-gradient(170deg, rgba(207,255,245,1) 0%, rgba(201,216,247,1) 100%)`,
       // backgroundImage: `linear-gradient(to bottom, transparent 40%, var(--aurora-color)), linear-gradient(170deg, rgba(234,255,251,1) 0%, rgba(243,247,255,1) 100%)`,
-      backgroundImage: `linear-gradient(to bottom, transparent 40%, var(--aurora-color)), var(--space-light)`,
+      background: `linear-gradient(to bottom, transparent 40%, var(--aurora-color)), var(--space-light)`,
       transition: '--space-light 3s, --aurora-color 3s',
     },
   };
