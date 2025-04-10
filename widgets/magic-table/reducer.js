@@ -16,6 +16,7 @@ export default (state = initialState, action = {}) => {
   switch (action.type) {
     case 'INITIALISE': {
       const {id, columns} = action;
+      state = initialState;
       state = state.set('id', id);
       for (const [index, column] of columns.entries()) {
         if (column.sortable && column.sortOrder) {
