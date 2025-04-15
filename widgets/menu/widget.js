@@ -21,6 +21,11 @@ class MenuItem extends Widget {
    * @param {Menu} menu
    */
   handleClick(event, menu) {
+    const {disabled = false} = this.props;
+    if (disabled) {
+      return;
+    }
+
     this.props.onClick?.(event);
     if (!event.nativeEvent.pointerType) {
       // Keyboard action
@@ -38,6 +43,11 @@ class MenuItem extends Widget {
    * @param {Menu} menu
    */
   handlePointerUp(event, menu) {
+    const {disabled = false} = this.props;
+    if (disabled) {
+      return;
+    }
+
     this.props.onPointerUp?.(event);
     if (!event.defaultPrevented) {
       menu.close();
