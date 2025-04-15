@@ -25,7 +25,10 @@ class MagicDatetimeFieldNC extends Widget {
     if (!time) {
       newDate = day;
     } else if (!day) {
-      newDate = `${DateConverters.getNowCanonical()}T${time}`;
+      const initialDate =
+        this.props.initialDate?.split('T', 1)?.[0] ||
+        DateConverters.getNowCanonical();
+      newDate = `${initialDate}T${time}`;
     } else {
       newDate = `${day}T${time}`;
     }
