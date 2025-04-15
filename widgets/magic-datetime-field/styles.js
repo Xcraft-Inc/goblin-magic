@@ -1,6 +1,6 @@
 export default function styles() {
   const datetimeContainer = {
-    display: 'flex',
+    display: 'inline-flex',
     flexDirection: 'row',
     gap: '5px;',
   };
