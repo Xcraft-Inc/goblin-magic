@@ -14,6 +14,11 @@ class MagicDateFieldNC extends Widget {
   constructor() {
     super(...arguments);
     this.styles = styles;
+    this.inputRef = this.props.inputRef || React.createRef();
+  }
+
+  get input() {
+    return this.inputRef.current;
   }
 
   static parseEdited(value) {
@@ -42,14 +47,45 @@ class MagicDateFieldNC extends Widget {
     return DateConverters.getDisplayed(value.split('T', 1)[0]);
   };
 
+  handleKeyDown = (event) => {
+    this.props.onKeyDown?.(event);
+
+    if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+      const {value, selectionStart, selectionEnd} = event.target;
+      const cursorPosition =
+        selectionStart < 2
+          ? selectionStart
+          : (selectionStart + selectionEnd) / 2;
+      const step = event.shiftKey && cursorPosition <= 2 ? 7 : 1;
+      const direction = event.key === 'ArrowUp' ? 1 : -1;
+      const result = DateConverters.incEdited(
+        value,
+        cursorPosition,
+        direction,
+        step
+      );
+      if (result.edited) {
+        this.input.changeAndSelect(
+          result.edited,
+          result.selectionStart,
+          result.selectionEnd
+        );
+      }
+
+      event.preventDefault();
+    }
+  };
+
   render() {
     const {className = '', required, ...props} = this.props;
     return (
       <InputGroup>
         <MagicTextField
+          inputRef={this.inputRef}
           format={this.format}
           parse={this.parse}
           {...props}
+          onKeyDown={this.handleKeyDown}
           className={this.styles.classNames.dateField + ' ' + className}
         />
         <MagicButton disabled>

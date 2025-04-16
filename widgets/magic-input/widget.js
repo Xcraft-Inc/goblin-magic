@@ -216,6 +216,13 @@ class MagicInputNC extends Widget {
     return this.htmlInputRef.current;
   }
 
+  changeAndSelect(value, selectionStart, selectionEnd) {
+    this.props.onChange(value, () => {
+      // After state changed.
+      this.htmlInput?.setSelectionRange(selectionStart, selectionEnd);
+    });
+  }
+
   onFocus = (event) => {
     if (this.props.onFocus) {
       const value = this.props.autoRows ? event : getEventValue(event);
