@@ -173,6 +173,13 @@ class MenuButton extends Widget {
     this.stopPropagation = this.stopPropagation.bind(this);
   }
 
+  componentWillUnmount() {
+    window.removeEventListener('click', this.stopPropagation, {
+      capture: true,
+      once: true,
+    });
+  }
+
   stopPropagation(event) {
     event.stopPropagation();
   }
@@ -193,7 +200,8 @@ class MenuButton extends Widget {
    */
   handlePointerDown = (event, menu) => {
     event.currentTarget?.focus();
-    window.addEventListener('click', (event) => event.stopPropagation(), {
+    // Prevent click event on parent elements
+    window.addEventListener('click', this.stopPropagation, {
       capture: true,
       once: true,
     });
