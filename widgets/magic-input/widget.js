@@ -206,10 +206,14 @@ class MagicInputNC extends Widget {
   constructor() {
     super(...arguments);
     this.styles = styles;
-    this.input = React.createRef();
+    this.htmlInputRef = React.createRef();
     this.state = {
       showPicker: false,
     };
+  }
+
+  get htmlInput() {
+    return this.htmlInputRef.current;
   }
 
   onFocus = (event) => {
@@ -218,8 +222,7 @@ class MagicInputNC extends Widget {
       this.props.onFocus(value);
     }
     if (this.props.selectAllOnFocus) {
-      const input = this.props.innerRef || this.input;
-      input.current?.select();
+      this.htmlInput?.select();
     }
     Mousetrap.bind('ctrl+space', this.pick);
   };
@@ -240,7 +243,6 @@ class MagicInputNC extends Widget {
   };
 
   handleKeyDown = (event) => {
-    const input = this.props.innerRef || this.input;
     if (!event.shiftKey && event.key === 'Enter') {
       if (this.props.onEnterKey) {
         const value = this.props.autoRows
@@ -261,10 +263,10 @@ class MagicInputNC extends Widget {
     }
     if (!event.shiftKey && event.key === 'Enter') {
       if (!this.props.autoRows && !this.props.rows) {
-        input.current.blur();
+        this.htmlInput.blur();
       }
 
-      const nextInput = findNextInput(input.current);
+      const nextInput = findNextInput(this.htmlInput);
       if (nextInput) {
         if (!this.props.autoRows && !this.props.rows) {
           event.preventDefault();
@@ -277,8 +279,7 @@ class MagicInputNC extends Widget {
 
   componentDidMount() {
     if (this.props.autoFocus) {
-      const input = this.props.innerRef || this.input;
-      input.current?.setAttribute?.('autofocus', true);
+      this.htmlInput?.setAttribute?.('autofocus', true);
     }
   }
 
@@ -292,10 +293,9 @@ class MagicInputNC extends Widget {
   };
 
   pick = () => {
-    const input = this.props.innerRef || this.input;
     this.currentSelection = {
-      start: input.current.selectionStart,
-      end: input.current.selectionEnd,
+      start: this.htmlInput.selectionStart,
+      end: this.htmlInput.selectionEnd,
     };
     this.setState({showPicker: true});
   };
@@ -307,14 +307,13 @@ class MagicInputNC extends Widget {
   onSelectEmoji = (emoji) => {
     this.hide();
 
-    const input = this.props.innerRef || this.input;
-    input.current.focus();
+    this.htmlInput.focus();
 
     const newValue = this.insertEmoji(emoji);
     this.props.onChange?.(newValue);
 
     const newPosition = this.currentSelection.start + emoji.length;
-    input.current.setSelectionRange(newPosition, newPosition);
+    this.htmlInput.setSelectionRange(newPosition, newPosition);
   };
 
   render() {
@@ -325,7 +324,6 @@ class MagicInputNC extends Widget {
       className = '',
       emojiPicker,
       selectAllOnFocus,
-      innerRef,
       ...props
     } = this.props;
     let Component = 'input';
@@ -343,7 +341,7 @@ class MagicInputNC extends Widget {
             <Component
               {...props}
               className={'input mousetrap'}
-              ref={innerRef || this.input}
+              ref={this.htmlInputRef}
               onFocus={this.onFocus}
               onBlur={this.onBlur}
               onChange={this.onChange}
@@ -372,7 +370,7 @@ class MagicInputNC extends Widget {
       <Component
         {...props}
         className={'input' + ' ' + className}
-        ref={innerRef || this.input}
+        ref={this.htmlInputRef}
         onFocus={this.onFocus}
         onBlur={this.onBlur}
         onChange={this.onChange}
@@ -383,6 +381,10 @@ class MagicInputNC extends Widget {
   }
 }
 
-const MagicInput = wrapRawInput(MagicInputNC);
+const MagicInput = wrapRawInput(
+  ({forwardedRef, ...props}) => <MagicInputNC ref={forwardedRef} {...props} />,
+  'value',
+  true
+);
 
 export default MagicInput;

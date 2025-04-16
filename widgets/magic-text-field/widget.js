@@ -31,7 +31,7 @@ class MagicTextFieldNC extends Widget {
     return (
       <>
         <MagicInput
-          innerRef={this.props.innerRef}
+          ref={this.props.inputRef}
           className={this.styles.classNames.inputEdit + ' ' + className}
           value={this.props.value}
           onBlur={this.disableEdit}
