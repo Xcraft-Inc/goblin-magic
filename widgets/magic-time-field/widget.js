@@ -43,6 +43,32 @@ class MagicTimeFieldNC extends Widget {
     return TimeConverters.getDisplayed(value.split(/[.\-+Z]/, 1)[0]);
   };
 
+  getPositionKind(position) {
+    // Value: h h : m m : s s
+    // Pos:  0 1 2 3 4 5 6 7 8
+    // Kind:   0  |  1  |  2
+    if (position <= 2) {
+      return 0;
+    }
+    if (position <= 5) {
+      return 1;
+    }
+    return 2;
+  }
+
+  getSelection(positionKind) {
+    // Kind:   0  |  1  |  2
+    // Pos:  0 1 2 3 4 5 6 7 8
+    // Value: h h : m m : s s
+    if (positionKind === 0) {
+      return [0, 2];
+    }
+    if (positionKind === 1) {
+      return [3, 5];
+    }
+    return [6, 8];
+  }
+
   handleKeyDown = (event) => {
     this.props.onKeyDown?.(event);
 
@@ -67,7 +93,26 @@ class MagicTimeFieldNC extends Widget {
           result.selectionEnd
         );
       }
+      event.preventDefault();
+    }
 
+    if (event.ctrlKey && event.key === 'ArrowRight') {
+      const {value, selectionEnd} = event.target;
+      const positionKind = this.getPositionKind(selectionEnd);
+      const lastKind = 1;
+      const newKind = positionKind < lastKind ? positionKind + 1 : lastKind;
+      this.input.htmlInput.setSelectionRange(
+        ...this.getSelection(newKind, value.length)
+      );
+      event.preventDefault();
+    }
+    if (event.ctrlKey && event.key === 'ArrowLeft') {
+      const {value, selectionStart} = event.target;
+      const positionKind = this.getPositionKind(selectionStart);
+      const newKind = positionKind > 0 ? positionKind - 1 : 0;
+      this.input.htmlInput.setSelectionRange(
+        ...this.getSelection(newKind, value.length)
+      );
       event.preventDefault();
     }
   };
