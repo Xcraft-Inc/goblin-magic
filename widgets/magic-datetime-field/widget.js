@@ -4,8 +4,11 @@ import * as styles from './styles.js';
 import withC from 'goblin-laboratory/widgets/connect-helpers/with-c';
 import MagicDateField from '../magic-date-field/widget.js';
 import MagicTimeField from '../magic-time-field/widget.js';
-import {date as DateConverters} from 'xcraft-core-converters';
-import {plainDateISO, plainTimeISO} from 'xcraft-core-utils/lib/calendar.js';
+import {
+  nowZonedDateTimeISO,
+  parseZonedDateTime,
+  zonedDateTimeFromParts,
+} from 'xcraft-core-utils/lib/calendar.js';
 
 class MagicDatetimeFieldNC extends Widget {
   constructor() {
@@ -14,23 +17,46 @@ class MagicDatetimeFieldNC extends Widget {
   }
 
   changeDate = (date) => {
-    const [_, time] = this.props.value?.split('T') || [];
-    const newDate = date && time ? `${date}T${time}` : date;
+    const {value} = this.props;
+    let newDate;
+    if (date && value && value.includes('T')) {
+      const afterDate = value.slice(value.indexOf('T') + 1);
+      newDate = `${date}T${afterDate}`;
+    } else {
+      newDate = date;
+    }
     this.props.onChange?.(newDate);
   };
 
   changeTime = (time) => {
-    const day = this.props.value?.split('T', 1)?.[0] || null;
+    const {value, initialDate} = this.props;
     let newDate;
-    if (!time) {
-      newDate = day;
-    } else if (!day) {
-      const initialDate =
-        this.props.initialDate?.split('T', 1)?.[0] ||
-        DateConverters.getNowCanonical();
-      newDate = `${initialDate}T${time}`;
+    if (value) {
+      const current = parseZonedDateTime(value);
+      if (time) {
+        const timezone = current.time
+          ? current.timezone
+          : Intl.DateTimeFormat().resolvedOptions().timeZone;
+        newDate = zonedDateTimeFromParts({...current, time, timezone});
+      } else {
+        newDate = current.date;
+      }
     } else {
-      newDate = `${day}T${time}`;
+      if (time) {
+        const initial = parseZonedDateTime(
+          initialDate || nowZonedDateTimeISO()
+        );
+        const timezone = initial.time
+          ? initial.timezone
+          : Intl.DateTimeFormat().resolvedOptions().timeZone;
+        newDate = zonedDateTimeFromParts({
+          ...initial,
+          time,
+          timezone,
+        });
+      } else {
+        newDate = null;
+      }
     }
     this.props.onChange?.(newDate);
   };
@@ -44,17 +70,7 @@ class MagicDatetimeFieldNC extends Widget {
       dispatch,
       ...props
     } = this.props;
-    let date, time;
-    if (value) {
-      if (value.includes('T')) {
-        const localDate = new Date(value);
-        date = plainDateISO(localDate);
-        time = plainTimeISO(localDate);
-      } else {
-        date = value;
-        time = null;
-      }
-    }
+    const {date, time} = value ? parseZonedDateTime(value) : {};
     return (
       <div className={this.styles.classNames.datetimeContainer}>
         <MagicDateField
