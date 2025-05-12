@@ -8,7 +8,7 @@ import {
   nowZonedDateTimeISO,
   parseZonedDateTime,
   zonedDateTimeFromParts,
-} from 'xcraft-core-utils/lib/calendar.js';
+} from 'xcraft-core-converters/lib/calendar.js';
 
 class MagicDatetimeFieldNC extends Widget {
   constructor() {
