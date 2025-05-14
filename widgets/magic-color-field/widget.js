@@ -15,7 +15,7 @@ class MagicColorFieldButtonNC extends Widget {
   }
 
   render() {
-    const {value, onChange, className = '', ...props} = this.props;
+    const {value, onChange, disabled, className = '', ...props} = this.props;
 
     return (
       <MagicButton disabled>
@@ -31,6 +31,7 @@ class MagicColorFieldButtonNC extends Widget {
             type="color"
             value={value || ''}
             onChange={(event) => onChange?.(event.target.value)}
+            disabled={disabled}
           />
         </label>
       </MagicButton>
@@ -50,14 +51,19 @@ class MagicColorFieldNC extends Widget {
   }
 
   render() {
-    const {className = '', ...props} = this.props;
+    const {className = '', disabled, ...props} = this.props;
     return (
       <InputGroup>
         <MagicTextField
           {...props}
           className={this.styles.classNames.colorField + ' ' + className}
+          disabled={disabled}
         />
-        <MagicColorFieldButton value={props.value} onChange={props.onChange} />
+        <MagicColorFieldButton
+          value={props.value}
+          onChange={props.onChange}
+          disabled={disabled}
+        />
       </InputGroup>
     );
   }
