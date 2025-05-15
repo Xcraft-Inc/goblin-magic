@@ -96,6 +96,10 @@ export default function styles() {
         backgroundColor:
           'color-mix(in srgb, var(--accent-color), transparent 90%)',
       },
+      ':active > *:not(dialog)': {
+        backgroundColor:
+          'color-mix(in srgb, var(--accent-color), transparent 85%)',
+      },
     },
 
     '& > :first-child:last-child': {
