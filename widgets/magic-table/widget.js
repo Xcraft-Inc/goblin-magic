@@ -1,6 +1,6 @@
 import * as styles from './styles.js';
 import React from 'react';
-import debounce from 'lodash/debounce.js';
+import throttle from 'lodash/throttle.js';
 import Widget from 'goblin-laboratory/widgets/widget';
 import withC from 'goblin-laboratory/widgets/connect-helpers/with-c';
 import {faSquare, faCheckSquare} from '@fortawesome/free-regular-svg-icons';
@@ -348,7 +348,7 @@ let MagicTable = class extends Widget {
         columns: this.props.columns,
       });
     }
-    this.onUpdate = debounce(this.onUpdate, 1000);
+    this.onUpdate = throttle(this.onUpdate, 500);
   }
 
   componentDidUpdate() {
