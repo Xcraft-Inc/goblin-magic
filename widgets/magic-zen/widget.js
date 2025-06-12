@@ -17,7 +17,10 @@ export default class MagicZen extends Widget {
       return this.props.children;
     }
 
-    const {className = ''} = this.props;
+    const {
+      className = '',
+      background: Background = MagicBackground,
+    } = this.props;
 
     return createPortal(
       <Dialog
@@ -26,7 +29,7 @@ export default class MagicZen extends Widget {
         open
         onClose={this.props.onClose}
       >
-        <MagicBackground>
+        <Background>
           <div className={this.styles.classNames.notice}>
             Appuyez sur <span className={this.styles.classNames.key}>ESC</span>{' '}
             pour quitter le mode zen
@@ -34,7 +37,7 @@ export default class MagicZen extends Widget {
           <MagicDiv className={this.styles.classNames.zen + ' ' + className}>
             {this.props.children}
           </MagicDiv>
-        </MagicBackground>
+        </Background>
       </Dialog>,
       document.getElementById('root')
     );
