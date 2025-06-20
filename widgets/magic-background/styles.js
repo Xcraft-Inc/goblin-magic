@@ -55,6 +55,7 @@ export default function styles(theme, props) {
       // backgroundImage: `linear-gradient(170deg, rgba(207,255,245,1) 0%, rgba(201,216,247,1) 100%)`,
       // backgroundImage: `linear-gradient(to bottom, transparent 40%, var(--aurora-color)), linear-gradient(170deg, rgba(234,255,251,1) 0%, rgba(243,247,255,1) 100%)`,
       background: `linear-gradient(to bottom, transparent 40%, var(--aurora-color)), var(--space-light)`,
+      backgroundSize: 'cover',
       transition: '--space-light 3s, --aurora-color 3s',
     },
   };
