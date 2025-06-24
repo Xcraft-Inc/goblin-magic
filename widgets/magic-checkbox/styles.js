@@ -60,7 +60,7 @@ export default function styles() {
       outline: 'none',
     },
 
-    '&:active:not(:disabled)': {
+    '&:active': {
       transform: 'scale(0.9)',
     },
 
@@ -106,7 +106,7 @@ export default function styles() {
       marginLeft: 0,
     },
 
-    '&[data-disabled=true]': {
+    '&[data-locked=true]': {
       opacity: 0.4,
     },
   };

@@ -41,6 +41,7 @@ class MagicCheckboxNC extends Widget {
       text,
       title,
       disabled,
+      locked,
       small,
       children,
       className = '',
@@ -58,7 +59,7 @@ class MagicCheckboxNC extends Widget {
           onChange={onChange}
           disabled={disabled}
         />
-        <span className={this.styles.classNames.text} data-disabled={disabled}>
+        <span className={this.styles.classNames.text} data-locked={locked}>
           {text || children}
         </span>
       </label>
