@@ -101,8 +101,13 @@ export default function styles() {
   const text = {
     'display': 'flex',
     'marginLeft': '8px',
+
     '&:empty': {
       marginLeft: 0,
+    },
+
+    '&[data-disabled=true]': {
+      opacity: 0.4,
     },
   };
 
