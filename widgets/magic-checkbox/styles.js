@@ -60,7 +60,7 @@ export default function styles() {
       outline: 'none',
     },
 
-    '&:active': {
+    '&:active:not(:disabled)': {
       transform: 'scale(0.9)',
     },
 
