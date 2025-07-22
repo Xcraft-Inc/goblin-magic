@@ -60,6 +60,19 @@ export default function styles() {
       },
     },
 
+    '&[data-underlined=true]': {
+      '&::after': {
+        content: "''",
+        height: '2px',
+        backgroundColor: 'rgb(255,153,0)',
+        position: 'absolute',
+        bottom: '-1px',
+        left: '0',
+        right: '0',
+        zIndex: '-1',
+      },
+    },
+
     '&[data-len1=true]': {
       fontSize: '20px',
       padding: 0,

@@ -43,6 +43,7 @@ class MagicButtonNC extends Widget {
   render() {
     const {
       enabled,
+      underlined,
       big,
       simple,
       spinner,
@@ -59,7 +60,8 @@ class MagicButtonNC extends Widget {
       <TranslatableButton
         {...props}
         className={this.styles.classNames.button + ' button ' + className}
-        data-enabled={this.props.enabled}
+        data-enabled={enabled}
+        data-underlined={underlined}
         data-big={big}
         data-simple={simple}
         data-len1={len1}
@@ -72,7 +74,8 @@ class MagicButtonNC extends Widget {
       <button
         {...props}
         className={this.styles.classNames.button + ' button ' + className}
-        data-enabled={this.props.enabled}
+        data-enabled={enabled}
+        data-underlined={underlined}
         data-big={big}
         data-simple={simple}
         data-len1={len1}
