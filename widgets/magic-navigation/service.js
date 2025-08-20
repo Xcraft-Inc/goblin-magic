@@ -733,7 +733,7 @@ class MagicNavigation extends Elf {
       if (view.serviceArgs) {
         evt.serviceArgs = view.serviceArgs;
       }
-      this.quest.evt.send(`${tabId}-opened`, evt);
+      this.quest.evt(`${tabId}-opened`, evt);
     }
 
     return tabId;
@@ -1025,7 +1025,7 @@ class MagicNavigation extends Elf {
     const serviceId = this.state.tabs[tabId].serviceId;
     await this._removeTab(panelId, tabId);
     await this._removeView(tabId, serviceId, desktopId);
-    this.quest.evt.send(`${tabId}-closed`, result);
+    this.quest.evt(`${tabId}-closed`, result);
   }
 
   /**
@@ -1218,7 +1218,7 @@ class MagicNavigation extends Elf {
     const serviceId = this.state.tabs[dialogId]?.serviceId;
     await this._removeDialog(windowId, dialogId);
     await this._removeView(dialogId, serviceId, desktopId);
-    this.quest.evt.send(`${dialogId}-closed`, result);
+    this.quest.evt(`${dialogId}-closed`, result);
   }
 
   /**
@@ -1228,7 +1228,7 @@ class MagicNavigation extends Elf {
   async waitClosed(viewOrServiceId) {
     const viewId = await this.getViewId(viewOrServiceId);
     const result = await this.quest.sub.wait(
-      `*::magicNavigation.${viewId}-closed`
+      `*::magicNavigation@main.${viewId}-closed`
     );
     return result;
   }
