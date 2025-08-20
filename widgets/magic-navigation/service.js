@@ -39,6 +39,7 @@ class ViewStateShape {
   widgetProps = option(object);
   highlighted = boolean;
   parentViewId = option(id);
+  tabId = option(id); //used when we restore a tab
 }
 
 class ViewState extends Sculpt(ViewStateShape) {}
@@ -61,6 +62,7 @@ class ViewState extends Sculpt(ViewStateShape) {}
  * @property {string} [View.widget]
  * @property {object} [View.widgetProps]
  * @property {View} [View.previousView]
+ * @property {string} [View.tabId]
  */
 
 /**
@@ -72,6 +74,7 @@ class ViewState extends Sculpt(ViewStateShape) {}
  * @property {string} [View.widget]
  * @property {object} [View.widgetProps]
  * @property {View} [View.previousView]
+ * @property {string} [View.tabId]
  */
 
 /**
@@ -710,7 +713,7 @@ class MagicNavigation extends Elf {
       })();
       panelId = window.panelIds[newPanelIndex];
     }
-    const tabId = `tab@${this.quest.uuidV4()}`;
+    const tabId = view.tabId || `tab@${this.quest.uuidV4()}`;
     const serviceId =
       view.serviceId || (await this._createService(view, desktopId));
     const tab = {
@@ -722,9 +725,17 @@ class MagicNavigation extends Elf {
     if (!tab.widget && !tab.serviceId) {
       throw new Error(`Cannot open a tab without a widget or a service`);
     }
-    this.views.set(tabId, view);
 
+    this.views.set(tabId, view);
     this.logic.openNewTab(panelId, tabId, tab, activateTab);
+    if (serviceId) {
+      const evt = {tabId, serviceArgs: [], service: serviceId.split('@', 1)[0]};
+      if (view.serviceArgs) {
+        evt.serviceArgs = view.serviceArgs;
+      }
+      this.quest.evt.send(`${tabId}-opened`, evt);
+    }
+
     return tabId;
   }
 
