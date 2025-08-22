@@ -299,7 +299,19 @@ class MenuContent extends Widget {
       const firstTop = firstPos === 'top';
 
       if (size.height > window.innerHeight) {
-        return 'full';
+        if (state.fromContextMenu) {
+          return 'full';
+        }
+
+        // Prevent overlap on the button
+        const spaceAbove = top;
+        const spaceBelow = window.innerHeight - bottom;
+
+        if (firstBottom || (!firstTop && spaceBelow >= spaceAbove)) {
+          return 'bottom-constrained'; // Open to the bottom
+        } else {
+          return 'top-constrained'; // Open to the top
+        }
       }
 
       if (firstBottom || firstTop) {
@@ -349,6 +361,8 @@ class MenuContent extends Widget {
       'start': {top: 0},
       'end': {bottom: 0},
       'full': {top: 0, bottom: 0},
+      'bottom-constrained': {top: bottom, bottom: '8px'},
+      'top-constrained': {top: '8px', bottom: `calc(100% - ${top}px)`},
     }[verticalPos];
 
     const horizontalPos = (() => {

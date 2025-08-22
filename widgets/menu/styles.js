@@ -102,6 +102,10 @@ export default function styles() {
     'boxShadow': '0 0 20px rgba(0, 0, 0, 0.2)',
     'color': 'var(--text-color)',
 
+    'maxHeight': '100%',
+    'overflowY': 'auto',
+    'overflowX': 'hidden',
+
     '&::before': {
       content: "''",
       position: 'absolute',
