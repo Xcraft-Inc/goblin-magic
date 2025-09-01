@@ -65,6 +65,10 @@ export default function styles() {
     },
   };
 
+  const menuDiv = {
+    padding: '6px 8px',
+  };
+
   const menuDialog = {
     '::backdrop': {
       backgroundColor: 'transparent',
@@ -146,6 +150,7 @@ export default function styles() {
     menuItem,
     menuItemRight,
     menuTitle,
+    menuDiv,
     menuDialog,
     menuPosition,
     menuContent,
