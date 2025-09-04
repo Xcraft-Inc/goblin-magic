@@ -551,6 +551,7 @@ export default class Menu extends Widget {
   }
 
   close() {
+    this.props.onClose?.();
     this.setState({open: false});
   }
 
