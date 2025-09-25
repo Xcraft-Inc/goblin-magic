@@ -613,13 +613,18 @@ class MagicNavigation extends Elf {
   /**
    * @param {id} parentId
    * @param {string} prompt
-   * @param {string} [advice]
-   * @param {string} [okLabel]
-   * @param {string} [cancelLabel]
-   * @param {string} [initialValue]
-   * @returns {Promise<any>}
+   * @param {object} [options]
+   * @param {string} [options.advice]
+   * @param {string} [options.okLabel]
+   * @param {string} [options.cancelLabel]
+   * @param {string} [options.initialValue]
+   * @returns {Promise<string>}
    */
-  async prompt(parentId, prompt, advice, okLabel, cancelLabel, initialValue) {
+  async prompt(
+    parentId,
+    prompt,
+    {advice, okLabel, cancelLabel, initialValue} = {}
+  ) {
     const dialogId = await this.openDialog(
       {
         widget: 'PromptDialog',
