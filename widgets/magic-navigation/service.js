@@ -765,8 +765,14 @@ class MagicNavigation extends Elf {
   }
 
   async _hasSameWidget(view1, view2) {
-    const widget1 = view1.widget || getServiceName(view1.service);
-    const widget2 = view2.widget || getServiceName(view2.service);
+    const widget1 =
+      view1.widget ||
+      getServiceName(view1.service) ||
+      view1.serviceId.split('@', 1)[0];
+    const widget2 =
+      view2.widget ||
+      getServiceName(view2.service) ||
+      view2.serviceId.split('@', 1)[0];
     return (
       widget1[0].toLowerCase() + widget1.slice(1) ===
       widget2[0].toLowerCase() + widget2.slice(1)
