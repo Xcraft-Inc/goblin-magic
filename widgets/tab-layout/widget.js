@@ -82,10 +82,10 @@ class TabLayoutTabs extends Widget {
             return child;
           }
           const value = child.props.value;
-          const onDragOver = (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            e.dataTransfer.dropEffect = 'move';
+          const onDragOver = (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            event.dataTransfer.dropEffect = 'move';
           };
           return React.cloneElement(child, {
             'onClick': (event) =>
