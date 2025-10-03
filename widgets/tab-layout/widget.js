@@ -73,7 +73,7 @@ class TabLayoutTabs extends Widget {
   handleDragEnd = () => {};
 
   render() {
-    const {currentTab, onTabClick, ...props} = this.props;
+    const {currentTab, onTabClick, onTabDrop, ...props} = this.props;
     const className = this.props.className || '';
     return (
       <div {...props} className={this.styles.classNames.tabs + ' ' + className}>
