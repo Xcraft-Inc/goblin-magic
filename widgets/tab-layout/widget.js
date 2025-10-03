@@ -39,10 +39,29 @@ class TabLayoutTabs extends Widget {
 
   handleDragEnter = (event) => {
     event.preventDefault();
+    event.stopPropagation();
+
+    const enterFromOutside = !event.currentTarget.contains(event.relatedTarget);
+    if (enterFromOutside) {
+      event.currentTarget.classList.add('drop-hover');
+    }
+  };
+
+  handleDragLeave = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const leaveToOutside = !event.currentTarget.contains(event.relatedTarget);
+    if (leaveToOutside) {
+      event.currentTarget.classList.remove('drop-hover');
+    }
   };
 
   handleDrop = (event, targetTabId) => {
     event.preventDefault();
+
+    event.currentTarget.classList.remove('drop-hover');
+
     const draggedTabId = event.dataTransfer.getData('text/plain');
     if (!draggedTabId || !targetTabId) {
       return;
@@ -77,6 +96,7 @@ class TabLayoutTabs extends Widget {
             'draggable': true,
             'onDragStart': (e) => this.handleDragStart(e, value),
             'onDragEnter': this.handleDragEnter,
+            'onDragLeave': this.handleDragLeave,
             'onDragOver': onDragOver,
             'onDrop': (e) => this.handleDrop(e, value),
             'onDragEnd': this.handleDragEnd,
