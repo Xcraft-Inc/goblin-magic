@@ -210,30 +210,34 @@ const MagicNavigationTab = withC(MagicNavigationTabNC);
 let MagicNavigationTabs = class extends Widget {
   constructor() {
     super(...arguments);
-    this.handleKeyDown = this.handleKeyDown.bind(this);
-    this.setTab = this.setTab.bind(this);
-    this.handleAuxClick = this.handleAuxClick.bind(this);
   }
 
-  handleKeyDown(event) {
+  handleKeyDown = (event) => {
     if (event.key === 'ArrowLeft') {
       this.doFor('magicNavigation@main', 'switchTab', {reverse: true});
     } else if (event.key === 'ArrowRight') {
       this.doFor('magicNavigation@main', 'switchTab');
     }
-  }
+  };
 
-  setTab(tabId) {
+  setTab = (tabId) => {
     this.doFor('magicNavigation@main', 'activateTab', {tabId});
-  }
+  };
 
-  handleAuxClick(event) {
+  moveTab = (srcTabId, dstTabId) => {
+    this.doFor('magicNavigation@main', 'moveTab', {
+      srcTabId,
+      dstTabId,
+    });
+  };
+
+  handleAuxClick = (event) => {
     if (event.button === 1) {
       // Middle click
       const tabId = event.currentTarget.dataset.value;
       this.doFor('magicNavigation@main', 'closeTab', {tabId});
     }
-  }
+  };
 
   render() {
     const tabIds = this.props.tabIds;
@@ -242,6 +246,7 @@ let MagicNavigationTabs = class extends Widget {
       <MainTabs
         currentTab={currentTabId}
         onTabClick={this.setTab}
+        onTabDrop={this.moveTab}
         tabIndex="0"
         onKeyDown={this.handleKeyDown}
       >

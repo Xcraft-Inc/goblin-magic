@@ -26,12 +26,34 @@ class TabLayoutTabs extends Widget {
   constructor() {
     super(...arguments);
     this.styles = styles;
-    this.handleTabClick = this.handleTabClick.bind(this);
   }
 
-  handleTabClick(value, event) {
+  handleTabClick = (value, event) => {
     this.props.onTabClick?.(value, event);
-  }
+  };
+
+  handleDragStart = (event, tabId) => {
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/plain', tabId);
+  };
+
+  handleDragEnter = (event) => {
+    event.preventDefault();
+  };
+
+  handleDrop = (event, targetTabId) => {
+    event.preventDefault();
+    const draggedTabId = event.dataTransfer.getData('text/plain');
+    if (!draggedTabId || !targetTabId) {
+      return;
+    }
+
+    this.props.onTabDrop?.(draggedTabId, targetTabId, event);
+  };
+
+  handleDragEnd = () => {
+    this.setState({draggedTabId: null});
+  };
 
   render() {
     const {currentTab, onTabClick, ...props} = this.props;
@@ -43,10 +65,21 @@ class TabLayoutTabs extends Widget {
             return child;
           }
           const value = child.props.value;
+          const onDragOver = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            e.dataTransfer.dropEffect = 'move';
+          };
           return React.cloneElement(child, {
             'onClick': (event) =>
               (child.props.onClick || this.handleTabClick)(value, event),
             'data-active': currentTab === value,
+            'draggable': true,
+            'onDragStart': (e) => this.handleDragStart(e, value),
+            'onDragEnter': this.handleDragEnter,
+            'onDragOver': onDragOver,
+            'onDrop': (e) => this.handleDrop(e, value),
+            'onDragEnd': this.handleDragEnd,
           });
         })}
       </div>

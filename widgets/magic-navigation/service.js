@@ -259,6 +259,52 @@ class MagicNavigationLogic extends Elf.Spirit {
   }
 
   /**
+   * @param {id} srcPanelId
+   * @param {id} srcTabId
+   * @param {id} dstPanelId
+   * @param {id} dstTabId
+   */
+  moveTab(srcPanelId, srcTabId, dstPanelId, dstTabId) {
+    const {state} = this;
+
+    const srcIndex = state.panels[srcPanelId].tabIds.indexOf(srcTabId);
+    const dstIndex = state.panels[dstPanelId].tabIds.indexOf(dstTabId);
+
+    /* Case where the panels are the same */
+    if (srcPanelId === dstPanelId) {
+      state.panels[dstPanelId].tabIds[dstIndex] = srcTabId;
+      state.panels[srcPanelId].tabIds[srcIndex] = dstTabId;
+      return;
+    }
+
+    /* Case where the panels are differents
+     *
+     *   0   1   2                0   1   2
+     *  ___ ___ ___              ___ ___ ___
+     * | A | B | C |            | D | E | F |
+     *  ``` ``` ```              ``` ``` ```
+     *       |                        ^
+     *       '--------- move ---------'
+     *
+     *   0   1                    0   1   2   3
+     *  ___ ___                  ___ ___ ___ ___
+     * | A | C |                | D | B | E | F |
+     *  ``` ```                  ``` ``` ``` ```
+     */
+    state.panels[dstPanelId].tabIds.push('');
+    for (
+      let i = state.panels[dstPanelId].tabIds.length - 1;
+      i > dstIndex;
+      --i
+    ) {
+      state.panels[dstPanelId].tabIds[i] =
+        state.panels[dstPanelId].tabIds[i - 1];
+    }
+    state.panels[dstPanelId].tabIds[dstIndex] = srcTabId;
+    this._removeTabAndUpdatePanel(state, srcPanelId, srcTabId);
+  }
+
+  /**
    * @param {typeof this["state"]} state
    * @param {id} panelId
    * @param {id} tabId
@@ -989,6 +1035,25 @@ class MagicNavigation extends Elf {
       throw new Error(`Unknown tab '${tabId}'`);
     }
     this.logic.activateTab(panelId, tabId, keepHistory);
+  }
+
+  /**
+   * @param {id} srcTabId
+   * @param {id} dstTabId
+   */
+  async moveTab(srcTabId, dstTabId) {
+    if (srcTabId === dstTabId) {
+      return;
+    }
+    const srcPanelId = await this.findPanelId(srcTabId);
+    if (!srcPanelId) {
+      throw new Error(`Unknown tab '${srcTabId}'`);
+    }
+    const dstPanelId = await this.findPanelId(dstTabId);
+    if (!dstPanelId) {
+      throw new Error(`Unknown tab '${dstTabId}'`);
+    }
+    this.logic.moveTab(srcPanelId, srcTabId, dstPanelId, dstTabId);
   }
 
   /**
