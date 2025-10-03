@@ -70,9 +70,7 @@ class TabLayoutTabs extends Widget {
     this.props.onTabDrop?.(draggedTabId, targetTabId, event);
   };
 
-  handleDragEnd = () => {
-    this.setState({draggedTabId: null});
-  };
+  handleDragEnd = () => {};
 
   render() {
     const {currentTab, onTabClick, ...props} = this.props;
