@@ -37,7 +37,6 @@ class TabLayoutTabs extends Widget {
     event.dataTransfer.setData('text/plain', tabId);
   };
 
-  // --- Helpers ---------------------------------------------------------------
   #applySideClass = (el, side) => {
     if (!el) {
       return;
@@ -51,7 +50,7 @@ class TabLayoutTabs extends Widget {
     }
   };
 
-  #clearDropClasses = (el) => {
+  #dropClasses = (el) => {
     if (el) {
       el.classList.remove('drop-left');
       el.classList.remove('drop-right');
@@ -78,7 +77,7 @@ class TabLayoutTabs extends Widget {
     if (side) {
       this.#applySideClass(event.currentTarget, side);
     } else {
-      this.#clearDropClasses(event.currentTarget);
+      this.#dropClasses(event.currentTarget);
     }
   };
 
@@ -88,7 +87,7 @@ class TabLayoutTabs extends Widget {
 
     const leaveToOutside = !event.currentTarget.contains(event.relatedTarget);
     if (leaveToOutside) {
-      this.#clearDropClasses(event.currentTarget);
+      this.#dropClasses(event.currentTarget);
     }
   };
 
@@ -97,7 +96,7 @@ class TabLayoutTabs extends Widget {
 
     const el = event.currentTarget;
     const side = this.#getSideFromEvent(event);
-    this.#clearDropClasses(el);
+    this.#dropClasses(el);
 
     const draggedTabId = event.dataTransfer.getData('text/plain');
     if (draggedTabId && targetTabId) {
@@ -106,7 +105,7 @@ class TabLayoutTabs extends Widget {
   };
 
   handleDragEnd = (event) => {
-    this.#clearDropClasses(event?.currentTarget);
+    this.#dropClasses(event?.currentTarget);
   };
 
   render() {
