@@ -23,14 +23,20 @@ export default function styles() {
       ':active': {},
     },
 
-    '& > .drop-hover': {
+    '& > .drop-left': {
+      willChange: 'box-shadow',
       position: 'relative',
-      borderLeft:
-        '4px solid color-mix(in srgb, var(--text-color), transparent 40%)',
-      paddingLeft: '8px',
-      marginLeft: '12px',
-      transition: 'all 0.2s ease',
-      boxShadow: 'inset 4px 0 8px rgba(0, 0, 0, 0.3)',
+      transition: 'box-shadow 0.2s ease',
+      boxShadow:
+        'inset 4px 0 0 color-mix(in srgb, var(--text-color), transparent 40%)',
+    },
+
+    '& > .drop-right': {
+      willChange: 'box-shadow',
+      position: 'relative',
+      transition: 'box-shadow 0.2s ease',
+      boxShadow:
+        'inset -4px 0 0 color-mix(in srgb, var(--text-color), transparent 40%)',
     },
   };
 

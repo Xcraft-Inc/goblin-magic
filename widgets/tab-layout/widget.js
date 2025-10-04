@@ -37,13 +37,48 @@ class TabLayoutTabs extends Widget {
     event.dataTransfer.setData('text/plain', tabId);
   };
 
+  // --- Helpers ---------------------------------------------------------------
+  #applySideClass = (el, side) => {
+    if (!el) {
+      return;
+    }
+    if (side === 'left') {
+      el.classList.add('drop-left');
+      el.classList.remove('drop-right');
+    } else {
+      el.classList.add('drop-right');
+      el.classList.remove('drop-left');
+    }
+  };
+
+  #clearDropClasses = (el) => {
+    if (el) {
+      el.classList.remove('drop-left');
+      el.classList.remove('drop-right');
+    }
+  };
+
+  #getSideFromEvent = (event) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const midX = rect.left + rect.width / 2;
+    return event.clientX < midX ? 'left' : 'right';
+  };
+
   handleDragEnter = (event) => {
     event.preventDefault();
     event.stopPropagation();
+  };
 
-    const enterFromOutside = !event.currentTarget.contains(event.relatedTarget);
-    if (enterFromOutside) {
-      event.currentTarget.classList.add('drop-hover');
+  handleDragOver = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    event.dataTransfer.dropEffect = 'move';
+
+    const side = this.#getSideFromEvent(event);
+    if (side) {
+      this.#applySideClass(event.currentTarget, side);
+    } else {
+      this.#clearDropClasses(event.currentTarget);
     }
   };
 
@@ -53,24 +88,26 @@ class TabLayoutTabs extends Widget {
 
     const leaveToOutside = !event.currentTarget.contains(event.relatedTarget);
     if (leaveToOutside) {
-      event.currentTarget.classList.remove('drop-hover');
+      this.#clearDropClasses(event.currentTarget);
     }
   };
 
   handleDrop = (event, targetTabId) => {
     event.preventDefault();
 
-    event.currentTarget.classList.remove('drop-hover');
+    const el = event.currentTarget;
+    const side = this.#getSideFromEvent(event);
+    this.#clearDropClasses(el);
 
     const draggedTabId = event.dataTransfer.getData('text/plain');
-    if (!draggedTabId || !targetTabId) {
-      return;
+    if (draggedTabId && targetTabId) {
+      this.props.onTabDrop?.(draggedTabId, targetTabId, side, event);
     }
-
-    this.props.onTabDrop?.(draggedTabId, targetTabId, event);
   };
 
-  handleDragEnd = () => {};
+  handleDragEnd = (event) => {
+    this.#clearDropClasses(event?.currentTarget);
+  };
 
   render() {
     const {currentTab, onTabClick, onTabDrop, ...props} = this.props;
@@ -82,11 +119,6 @@ class TabLayoutTabs extends Widget {
             return child;
           }
           const value = child.props.value;
-          const onDragOver = (event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            event.dataTransfer.dropEffect = 'move';
-          };
           return React.cloneElement(child, {
             'onClick': (event) =>
               (child.props.onClick || this.handleTabClick)(value, event),
@@ -94,8 +126,8 @@ class TabLayoutTabs extends Widget {
             'draggable': true,
             'onDragStart': (e) => this.handleDragStart(e, value),
             'onDragEnter': this.handleDragEnter,
+            'onDragOver': this.handleDragOver,
             'onDragLeave': this.handleDragLeave,
-            'onDragOver': onDragOver,
             'onDrop': (e) => this.handleDrop(e, value),
             'onDragEnd': this.handleDragEnd,
           });

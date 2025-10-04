@@ -224,10 +224,11 @@ let MagicNavigationTabs = class extends Widget {
     this.doFor('magicNavigation@main', 'activateTab', {tabId});
   };
 
-  moveTab = (srcTabId, dstTabId) => {
+  moveTab = (srcTabId, dstTabId, side) => {
     this.doFor('magicNavigation@main', 'moveTab', {
       srcTabId,
       dstTabId,
+      side,
     });
   };
 

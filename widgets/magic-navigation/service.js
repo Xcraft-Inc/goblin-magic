@@ -263,45 +263,33 @@ class MagicNavigationLogic extends Elf.Spirit {
    * @param {id} srcTabId
    * @param {id} dstPanelId
    * @param {id} dstTabId
+   * @param {`left`|`right`} side
    */
-  moveTab(srcPanelId, srcTabId, dstPanelId, dstTabId) {
+  moveTab(srcPanelId, srcTabId, dstPanelId, dstTabId, side) {
     const {state} = this;
+    const tabs = [...state.panels[dstPanelId].tabIds];
 
-    const srcIndex = state.panels[srcPanelId].tabIds.indexOf(srcTabId);
-    const dstIndex = state.panels[dstPanelId].tabIds.indexOf(dstTabId);
-
-    /* Case where the panels are the same */
     if (srcPanelId === dstPanelId) {
-      state.panels[dstPanelId].tabIds[dstIndex] = srcTabId;
-      state.panels[srcPanelId].tabIds[srcIndex] = dstTabId;
-      return;
+      const srcIndex = state.panels[srcPanelId].tabIds.indexOf(srcTabId);
+      if (side === 'right') {
+        tabs.splice(srcIndex, 1);
+      } else {
+        tabs.splice(srcIndex, 1);
+      }
     }
 
-    /* Case where the panels are differents
-     *
-     *   0   1   2                0   1   2
-     *  ___ ___ ___              ___ ___ ___
-     * | A | B | C |            | D | E | F |
-     *  ``` ``` ```              ``` ``` ```
-     *       |                        ^
-     *       '--------- move ---------'
-     *
-     *   0   1                    0   1   2   3
-     *  ___ ___                  ___ ___ ___ ___
-     * | A | C |                | D | B | E | F |
-     *  ``` ```                  ``` ``` ``` ```
-     */
-    state.panels[dstPanelId].tabIds.push('');
-    for (
-      let i = state.panels[dstPanelId].tabIds.length - 1;
-      i > dstIndex;
-      --i
-    ) {
-      state.panels[dstPanelId].tabIds[i] =
-        state.panels[dstPanelId].tabIds[i - 1];
+    if (side === 'right') {
+      const dstIndex = tabs.indexOf(dstTabId);
+      tabs.splice(dstIndex + 1, 0, srcTabId);
+    } else {
+      const dstIndex = tabs.indexOf(dstTabId);
+      tabs.splice(dstIndex, 0, srcTabId);
     }
-    state.panels[dstPanelId].tabIds[dstIndex] = srcTabId;
-    this._removeTabAndUpdatePanel(state, srcPanelId, srcTabId);
+    state.panels[dstPanelId].tabIds = tabs;
+
+    if (srcPanelId !== dstPanelId) {
+      this._removeTabAndUpdatePanel(state, srcPanelId, srcTabId);
+    }
   }
 
   /**
@@ -1040,8 +1028,9 @@ class MagicNavigation extends Elf {
   /**
    * @param {id} srcTabId
    * @param {id} dstTabId
+   * @param {`left`|`right`} side
    */
-  async moveTab(srcTabId, dstTabId) {
+  async moveTab(srcTabId, dstTabId, side) {
     if (srcTabId === dstTabId) {
       return;
     }
@@ -1053,7 +1042,7 @@ class MagicNavigation extends Elf {
     if (!dstPanelId) {
       throw new Error(`Unknown tab '${dstTabId}'`);
     }
-    this.logic.moveTab(srcPanelId, srcTabId, dstPanelId, dstTabId);
+    this.logic.moveTab(srcPanelId, srcTabId, dstPanelId, dstTabId, side);
   }
 
   /**
