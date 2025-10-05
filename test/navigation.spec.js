@@ -3,50 +3,38 @@
 const {expect} = require('chai');
 const {Elf} = require('xcraft-core-goblin/lib/test.js');
 
+function restore(navLogic) {
+  navLogic.change('windows', {
+    'win@1': {
+      panelIds: ['panel@1', 'panel@2'],
+      dialogIds: ['dialog@1'],
+      activePanelId: 'panel@1',
+    },
+  });
+  navLogic.change('panels', {
+    'panel@1': {
+      tabIds: ['tab@1', 'tab@2', 'tab@3'],
+      lastTabIds: [],
+    },
+    'panel@2': {
+      tabIds: ['tab@4', 'tab@5', 'tab@6'],
+      lastTabIds: [],
+    },
+  });
+  navLogic.change('tabs', {
+    'tab@1': {highlighted: false},
+    'tab@2': {highlighted: false},
+    'tab@3': {highlighted: false},
+    'tab@4': {highlighted: false},
+    'tab@5': {highlighted: false},
+    'tab@6': {highlighted: false},
+  });
+}
+
 describe('goblin.magic.navigation', function () {
   const {
     MagicNavigationLogic,
   } = require('../widgets/magic-navigation/service.js');
-
-  function restore(navLogic) {
-    navLogic.change('windows', {
-      'win@1': {
-        panelIds: ['panel@1', 'panel@2'],
-        dialogIds: ['dialog@1'],
-        activePanelId: 'panel@1',
-      },
-    });
-    navLogic.change('panels', {
-      'panel@1': {
-        tabIds: ['tab@1', 'tab@2', 'tab@3'],
-        lastTabIds: [],
-      },
-      'panel@2': {
-        tabIds: ['tab@4', 'tab@5', 'tab@6'],
-        lastTabIds: [],
-      },
-    });
-    navLogic.change('tabs', {
-      'tab@1': {
-        highlighted: false,
-      },
-      'tab@2': {
-        highlighted: false,
-      },
-      'tab@3': {
-        highlighted: false,
-      },
-      'tab@4': {
-        highlighted: false,
-      },
-      'tab@5': {
-        highlighted: false,
-      },
-      'tab@6': {
-        highlighted: false,
-      },
-    });
-  }
 
   it('moveTab', function () {
     const navLogic = Elf.trial(MagicNavigationLogic);
