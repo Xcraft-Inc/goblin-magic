@@ -1,9 +1,9 @@
 import React from 'react';
 import Widget from 'goblin-laboratory/widgets/widget';
 import * as styles from './styles.js';
-import Dialog from '../dialog/widget.js';
 import Movable from '../movable/widget.js';
 import isEmptyAreaElement from '../element-helpers/is-empty-area-element.js';
+import CancelableDialog from '../cancelable-dialog/widget.js';
 
 /**
  * @param {PointerEvent} event1
@@ -21,7 +21,7 @@ class MagicDialog extends Widget {
   constructor() {
     super(...arguments);
     this.styles = styles;
-    /** @type {React.RefObject<Dialog>} */
+    /** @type {React.RefObject<CancelableDialog>} */
     this.dialog = React.createRef();
   }
 
@@ -57,7 +57,7 @@ class MagicDialog extends Widget {
 
   handlePointerDown = (event) => {
     const {target} = event;
-    const dialog = this.dialog.current?.dialog.current;
+    const dialog = this.dialog.current?.dialogElement;
     if (dialog && !dialog.contains(target)) {
       if (isEmptyAreaElement(target)) {
         this.downEvent = event;
@@ -76,30 +76,14 @@ class MagicDialog extends Widget {
     }
   };
 
-  handleKeyDown = (event) => {
-    this.props.onKeyDown?.(event);
-    if (event.defaultPrevented) {
-      return;
-    }
-    if (event.key === 'Escape') {
-      this.dialog.current.close();
-      event.stopPropagation();
-    }
-  };
-
   render() {
     const {className = '', ...props} = this.props;
     return (
       <Movable>
         {(moveableProps) => (
-          <Dialog
+          <CancelableDialog
             {...props}
             {...moveableProps}
-            onKeyDown={
-              !this.props.modal && this.props.onClose
-                ? this.handleKeyDown
-                : undefined
-            }
             ref={this.dialog}
             className={this.styles.classNames.dialog + ' ' + className}
             open={this.props.open}
