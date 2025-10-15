@@ -1,11 +1,11 @@
 import React from 'react';
 import Widget from 'goblin-laboratory/widgets/widget';
 import * as styles from './styles.js';
-import Dialog from '../dialog/widget.js';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faBars, faChevronRight} from '@fortawesome/free-solid-svg-icons';
 import MagicButton from 'goblin-magic/widgets/magic-button/widget.js';
 import WithComputedSize from '../with-computed-size/widget.js';
+import MenuDialog from '../menu-dialog/widget.js';
 
 const MenuContext = React.createContext();
 const MenuStateContext = React.createContext();
@@ -479,7 +479,7 @@ class MenuContent extends Widget {
       ...props
     } = this.props;
     return (
-      <Dialog
+      <MenuDialog
         open={open}
         modal={modal}
         onToggle={this.setFocus}
@@ -515,7 +515,7 @@ class MenuContent extends Widget {
             }}
           </WithComputedSize>
         )}
-      </Dialog>
+      </MenuDialog>
     );
   }
 

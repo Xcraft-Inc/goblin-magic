@@ -51,23 +51,6 @@ export default class Dialog extends Widget {
     event.stopPropagation();
   };
 
-  handlePointerDown = (event) => {
-    this.props.onPointerDown?.(event);
-    if (event.target === this.dialog.current) {
-      this.closeEnabled = true;
-    } else {
-      this.closeEnabled = false;
-    }
-  };
-
-  handlePointerUp = (event) => {
-    this.props.onPointerUp?.(event);
-    if (this.closeEnabled && event.target === this.dialog.current) {
-      this.dialog.current.close();
-    }
-    this.closeEnabled = false;
-  };
-
   update() {
     if (this.props.open) {
       if (!this.dialog.current?.open) {
@@ -85,13 +68,7 @@ export default class Dialog extends Widget {
   render() {
     const {open, modal, portal = false, onToggle, ...props} = this.props;
     const dialog = (
-      <dialog
-        {...props}
-        ref={this.dialog}
-        onClose={this.handleClose}
-        onPointerDown={this.handlePointerDown}
-        onPointerUp={this.handlePointerUp}
-      />
+      <dialog {...props} ref={this.dialog} onClose={this.handleClose} />
     );
 
     if (portal) {
