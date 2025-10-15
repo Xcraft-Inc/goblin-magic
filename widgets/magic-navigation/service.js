@@ -608,7 +608,7 @@ class MagicNavigation extends Elf {
    * @param {id} parentId
    * @param {string} prompt
    * @param {object} [options]
-   * @param {'default' | 'yes-no'} [options.kind]
+   * @param {'default' | 'yes-no' | 'yes-no-cancel'} [options.kind]
    * @param {string} [options.advice]
    * @param {string} [options.okLabel]
    * @param {string} [options.noLabel]
