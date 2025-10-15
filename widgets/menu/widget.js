@@ -255,6 +255,23 @@ class MenuContent extends Widget {
   }
 
   /**
+   * @param {ToggleEvent} event
+   */
+  setFocus = (event) => {
+    if (event.newState !== 'open') {
+      return;
+    }
+    /** @type {HTMLDialogElement} */
+    const dialog = event.currentTarget;
+    if (!document.activeElement || document.activeElement === document.body) {
+      const firstFocusable = dialog.querySelector('[tabindex]');
+      if (firstFocusable) {
+        firstFocusable.focus();
+      }
+    }
+  };
+
+  /**
    * @param {Event} event
    * @param {Menu} menu
    */
@@ -290,6 +307,7 @@ class MenuContent extends Widget {
     } else if (event.key === 'ArrowUp') {
       this.focusNext(event, -1);
     }
+    event.stopPropagation();
   };
 
   getStyle(state, size) {
@@ -464,6 +482,7 @@ class MenuContent extends Widget {
       <Dialog
         open={open}
         modal={modal}
+        onToggle={this.setFocus}
         onClose={(event) => this.handleClose(event, menu)}
         className={this.styles.classNames.menuDialog}
         portal={portal}
