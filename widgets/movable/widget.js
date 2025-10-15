@@ -45,6 +45,7 @@ class Movable extends Widget {
   handlePointerDown = (event) => {
     this.element = event.currentTarget;
     if (
+      this.element !== event.target &&
       this.element.contains(event.target) &&
       isEmptyAreaElement(event.target, this.element)
     ) {
