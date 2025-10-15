@@ -371,23 +371,35 @@ MagicNavigationPanels = withC(MagicNavigationPanels);
 let MagicNavigationDialog = class extends Widget {
   constructor() {
     super(...arguments);
-    this.handleClose = this.handleClose.bind(this);
   }
 
-  handleClose(event) {
+  handleClose = (event) => {
     const returnValue = event.currentTarget.returnValue;
     const dialogId = this.props.dialogId;
     this.doFor('magicNavigation@main', 'closeDialog', {
       dialogId,
       result: returnValue !== '' ? returnValue : undefined,
     });
-  }
+  };
+
+  handleCancel = (event) => {
+    const dialogId = this.props.dialogId;
+    this.doFor('magicNavigation@main', 'requestClose', {
+      viewId: dialogId,
+    });
+    event.preventDefault();
+  };
 
   render() {
     const dialogId = this.props.dialogId;
     const widgetProps = this.props.view.get('widgetProps')?.toObject();
     return (
-      <MagicDialog modal={widgetProps?.modal} open onClose={this.handleClose}>
+      <MagicDialog
+        modal={widgetProps?.modal}
+        open
+        onClose={this.handleClose}
+        onCancel={this.handleCancel}
+      >
         <MagicNavigationView
           id={this.props.id}
           viewId={dialogId}

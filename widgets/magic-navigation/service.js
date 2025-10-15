@@ -1287,6 +1287,34 @@ class MagicNavigation extends Elf {
   }
 
   /**
+   * @param {id} viewId
+   * @param {any} [result]
+   * @returns {Promise<boolean>}
+   */
+  async _onCloseRequested(viewId, result) {
+    const view = this.views.get(viewId);
+    if (!view) {
+      throw new Error(`Missing view '${viewId}'`);
+    }
+    const serviceId = this.state.tabs[viewId].serviceId;
+    if (view.service && serviceId) {
+      if (typeof view.service === 'string') {
+        const serviceAPI = this.quest.getAPI(serviceId);
+        if (serviceAPI.onCloseRequested) {
+          return await serviceAPI.onCloseRequested(result);
+        }
+      } else {
+        const ServiceClass = view.service;
+        const serviceAPI = await new ServiceClass(this).api(serviceId);
+        if (serviceAPI.onCloseRequested) {
+          return await serviceAPI.onCloseRequested(result);
+        }
+      }
+    }
+    return true;
+  }
+
+  /**
    * @param {id} viewOrServiceId id of dialog, tab or service
    * @returns {Promise<any>}
    */
@@ -1340,6 +1368,18 @@ class MagicNavigation extends Elf {
       await this.closeDialog(desktopId, viewId, result);
     } else {
       await this.closeTab(viewId, result);
+    }
+  }
+
+  /**
+   * @param {DesktopId} desktopId
+   * @param {id} viewId
+   * @param {any} [result]
+   */
+  async requestClose(desktopId, viewId, result) {
+    const canBeClosed = await this._onCloseRequested(viewId, result);
+    if (canBeClosed) {
+      await this.closeView(desktopId, viewId, result);
     }
   }
 
