@@ -11,11 +11,35 @@ export default class Dialog extends Widget {
   }
 
   componentDidMount() {
+    this.updateToggleListener();
     this.update();
   }
 
   componentDidUpdate() {
+    this.updateToggleListener();
     this.update();
+  }
+
+  componentWillUnmount() {
+    this.removeToggleListener();
+  }
+
+  updateToggleListener() {
+    // Using the `onToggle` prop on the <dialog> component does not work.
+    // So we register the 'toggle' event manually.
+    if (this.props.onToggle) {
+      this.addToggleListener();
+    } else {
+      this.removeToggleListener();
+    }
+  }
+
+  addToggleListener() {
+    this.dialog.current?.addEventListener('toggle', this.props.onToggle);
+  }
+
+  removeToggleListener() {
+    this.dialog.current?.removeEventListener('toggle', this.props.onToggle);
   }
 
   close = () => {
@@ -59,7 +83,7 @@ export default class Dialog extends Widget {
   }
 
   render() {
-    const {open, modal, portal = false, ...props} = this.props;
+    const {open, modal, portal = false, onToggle, ...props} = this.props;
     const dialog = (
       <dialog
         {...props}
