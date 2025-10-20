@@ -5,7 +5,8 @@
   "author": "Epsitec SA",
   "contributors": [
     "Yannick Vessaz <vessaz@epsitec.ch>",
-    "Mathieu Schroeter <schroeter@epsitec.ch>"
+    "Mathieu Schroeter <schroeter@epsitec.ch>",
+    "Samuel Loup <loup@epsitec.ch>"
   ],
   "license": "MIT",
   "config": {
