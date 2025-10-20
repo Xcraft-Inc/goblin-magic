@@ -990,6 +990,14 @@ class MagicNavigation extends Elf {
   }
 
   /**
+   * @param {id} tabId
+   * @returns {Promise<string | null | undefined>}
+   */
+  async getServiceId(tabId) {
+    return this.state.tabs[tabId]?.serviceId;
+  }
+
+  /**
    * @param {id} panelId
    * @returns {Promise<DesktopId | undefined >}
    */
