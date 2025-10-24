@@ -384,6 +384,20 @@ class MenuContent extends Widget {
         return 'span-top';
       }
 
+      if (secondPos === 'center') {
+        const center = (top + bottom) / 2;
+        const halfHeight = size.height / 2;
+        const touchTop = center - halfHeight < 0;
+        if (touchTop) {
+          return 'start';
+        }
+        const touchBottom = center + halfHeight > window.innerHeight;
+        if (touchBottom) {
+          return 'end';
+        }
+        return 'center';
+      }
+
       if (notSpanBottom) {
         return 'end';
       }
@@ -395,6 +409,7 @@ class MenuContent extends Widget {
       'top': {bottom: `calc(100% - ${top}px)`},
       'span-bottom': {top},
       'span-top': {bottom: `calc(100% - ${bottom}px)`},
+      'center': {top: (top + bottom - size.height) / 2},
       'start': {top: 0},
       'end': {bottom: 0},
       'full': {top: 0, bottom: 0},
@@ -443,6 +458,20 @@ class MenuContent extends Widget {
         return 'span-left';
       }
 
+      if (secondPos === 'center') {
+        const center = (left + right) / 2;
+        const halfWidth = size.width / 2;
+        const touchLeft = center - halfWidth < 0;
+        if (touchLeft) {
+          return 'start';
+        }
+        const touchRight = center + halfWidth > window.innerWidth;
+        if (touchRight) {
+          return 'end';
+        }
+        return 'center';
+      }
+
       if (notSpanRight) {
         return 'end';
       }
@@ -454,6 +483,7 @@ class MenuContent extends Widget {
       'left': {right: `calc(100% - ${left}px)`},
       'span-right': {left},
       'span-left': {right: `calc(100% - ${right}px)`},
+      'center': {left: (left + right - size.width) / 2},
       'start': {left: 0},
       'end': {right: 0},
       'full': {left: 0, right: 0},
