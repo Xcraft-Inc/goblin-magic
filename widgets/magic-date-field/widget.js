@@ -3,12 +3,12 @@ import Widget from 'goblin-laboratory/widgets/widget';
 import * as styles from './styles.js';
 import withC from 'goblin-laboratory/widgets/connect-helpers/with-c';
 import MagicTextField from '../magic-text-field/widget.js';
-
 import {date as DateConverters} from 'xcraft-core-converters';
 import InputGroup from '../input-group/widget.js';
-import MagicButton from '../magic-button/widget.js';
 import Icon from '@mdi/react';
 import {mdiCalendarMonth} from '@mdi/js';
+import Menu from '../menu/widget.js';
+import CalendarMenuContent from '../calendar-menu-content/widget.js';
 
 class MagicDateFieldNC extends Widget {
   constructor() {
@@ -120,6 +120,11 @@ class MagicDateFieldNC extends Widget {
     }
   };
 
+  handleCalendarChange = (date, menu) => {
+    menu.close();
+    this.props.onChange(date);
+  };
+
   render() {
     const {className = '', required, ...props} = this.props;
     return (
@@ -132,9 +137,23 @@ class MagicDateFieldNC extends Widget {
           onKeyDown={this.handleKeyDown}
           className={this.styles.classNames.dateField + ' ' + className}
         />
-        <MagicButton disabled>
-          <Icon path={mdiCalendarMonth} size={0.8} />
-        </MagicButton>
+        <Menu>
+          <Menu.Button>
+            <Icon path={mdiCalendarMonth} size={0.8} />
+          </Menu.Button>
+          <Menu.Content position="bottom center" addTabIndex={false}>
+            <Menu.Context.Consumer>
+              {(menu) => (
+                <CalendarMenuContent
+                  allowEmpty={!required}
+                  value={this.props.value || DateConverters.getNowCanonical()}
+                  onChange={(date) => this.handleCalendarChange(date, menu)}
+                  onCancel={menu.close}
+                />
+              )}
+            </Menu.Context.Consumer>
+          </Menu.Content>
+        </Menu>
       </InputGroup>
     );
   }
