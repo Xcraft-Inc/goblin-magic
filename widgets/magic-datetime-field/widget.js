@@ -67,6 +67,7 @@ class MagicDatetimeFieldNC extends Widget {
       onChange,
       requiredDate,
       requiredTime,
+      isEndTime,
       dispatch,
       ...props
     } = this.props;
@@ -84,6 +85,7 @@ class MagicDatetimeFieldNC extends Widget {
           value={time}
           onChange={this.changeTime}
           required={requiredTime}
+          isEndTime={isEndTime}
         />
       </div>
     );

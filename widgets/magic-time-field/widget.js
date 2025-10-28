@@ -20,16 +20,22 @@ class MagicTimeFieldNC extends Widget {
     return this.inputRef.current;
   }
 
-  static parseEdited(value) {
+  static parseEdited(value, isEndTime) {
     if (!value) {
       return null;
+    }
+    if (
+      isEndTime &&
+      (value === '24:00' || value === '2400' || value === '24')
+    ) {
+      return '24:00:00';
     }
     const edited = TimeConverters.parseEdited(value);
     return edited.value;
   }
 
   parse = (value) => {
-    const newValue = MagicTimeFieldNC.parseEdited(value);
+    const newValue = MagicTimeFieldNC.parseEdited(value, this.props.isEndTime);
     if (this.props.required && !newValue) {
       return TimeConverters.getNowCanonical();
     }
