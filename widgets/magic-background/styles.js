@@ -38,9 +38,6 @@ export default function styles(theme, props) {
   const main = {
     '--space-dark': plainColor ? '#0D1D3C' : `url(${images['milk']})`,
     '--space-light': plainColor ? '#CDDFEC' : `url(${images['white']})`,
-    '--accent-color': `${props.backgroundColor || 'white'}`,
-    '--button-accent-color':
-      'color-mix(in srgb, var(--accent-color), #ccc 40%)',
     '--aurora-color': `transparent`,
     'height': '100vh',
     'width': '100vw',
