@@ -15,6 +15,7 @@ export default function styles() {
     padding: 0,
     minWidth: '24px',
     minHeight: '24px',
+    color: 'var(--text-color)',
   };
 
   const group = {
