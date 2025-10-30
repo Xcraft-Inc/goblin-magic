@@ -14,25 +14,30 @@ class SmallCalendar extends Widget {
   constructor() {
     super(...arguments);
     this.styles = styles;
+    this.dateBeforeMonthChange = this.props.date;
   }
 
   setToday = (event) => {
     const newDate = DateConverters.getNowCanonical();
     this.props.onDateChange(newDate);
+    this.dateBeforeMonthChange = newDate;
   };
 
   previousDay = (event) => {
     const newDate = DateConverters.addDays(this.props.date, -1);
     this.props.onDateChange(newDate);
+    this.dateBeforeMonthChange = newDate;
   };
 
   nextDay = (event) => {
     const newDate = DateConverters.addDays(this.props.date, 1);
     this.props.onDateChange(newDate);
+    this.dateBeforeMonthChange = newDate;
   };
 
   previousMonth = (event) => {
-    const newDate = DateConverters.addMonths(this.props.date, -1);
+    let newDate = DateConverters.addMonths(this.props.date, -1);
+    newDate = CalendarHelpers.setSameDay(newDate, this.dateBeforeMonthChange);
     this.props.onDateChange(newDate);
   };
 
@@ -42,28 +47,33 @@ class SmallCalendar extends Widget {
   };
 
   nextMonth = (event) => {
-    const newDate = DateConverters.addMonths(this.props.date, 1);
+    let newDate = DateConverters.addMonths(this.props.date, 1);
+    newDate = CalendarHelpers.setSameDay(newDate, this.dateBeforeMonthChange);
     this.props.onDateChange(newDate);
   };
 
   previousYear = (event) => {
-    const newDate = DateConverters.addYears(this.props.date, -1);
+    let newDate = DateConverters.addYears(this.props.date, -1);
+    newDate = CalendarHelpers.setSameDay(newDate, this.dateBeforeMonthChange);
     this.props.onDateChange(newDate);
   };
 
   nextYear = (event) => {
-    const newDate = DateConverters.addYears(this.props.date, 1);
+    let newDate = DateConverters.addYears(this.props.date, 1);
+    newDate = CalendarHelpers.setSameDay(newDate, this.dateBeforeMonthChange);
     this.props.onDateChange(newDate);
   };
 
   previousWeek = (event) => {
     const newDate = DateConverters.addDays(this.props.date, -7);
     this.props.onDateChange(newDate);
+    this.dateBeforeMonthChange = newDate;
   };
 
   nextWeek = (event) => {
     const newDate = DateConverters.addDays(this.props.date, 7);
     this.props.onDateChange(newDate);
+    this.dateBeforeMonthChange = newDate;
   };
 
   handleKeyDown = (event) => {

@@ -67,6 +67,24 @@ export function getWeekStart(date = new Date()) {
   return plainDateISO(date);
 }
 
+/**
+ * @param {plainDate} plainDate
+ * @param {plainDate} otherPlainDate
+ * @returns {plainDate}
+ */
+export function setSameDay(plainDate, otherPlainDate) {
+  const [year, month, day] = plainDate.split('-');
+  const [_, __, beforeDay] = otherPlainDate.split('-');
+  if (day !== beforeDay) {
+    const newDate = new Date(`${year}-${month}-${beforeDay}`);
+    const monthNum = Number(month) - 1;
+    while (newDate.getMonth() > monthNum) {
+      newDate.setDate(newDate.getDate() - 1);
+    }
+    return newDate.toISOString().split('T', 1)[0];
+  }
+  return plainDate;
+}
 
 /**
  * @param {plainDate} plainDate
@@ -171,6 +189,7 @@ const CalendarHelpers = {
   addDays,
   getWeekNumber,
   getWeekStart,
+  setSameDay,
   setMonth,
   getMonthNames,
   generateWeekStarts,

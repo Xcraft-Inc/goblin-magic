@@ -9,6 +9,7 @@ import Icon from '@mdi/react';
 import {mdiCalendarMonth} from '@mdi/js';
 import Menu from '../menu/widget.js';
 import CalendarMenuContent from '../calendar-menu-content/widget.js';
+import CalendarHelpers from '../calendar-helpers.js';
 
 class MagicDateFieldNC extends Widget {
   constructor() {
@@ -76,6 +77,7 @@ class MagicDateFieldNC extends Widget {
   handleKeyDown = (event) => {
     this.props.onKeyDown?.(event);
 
+    let monthEdited = false;
     if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
       const {value, selectionStart, selectionEnd} = event.target;
       const cursorPosition =
@@ -91,13 +93,37 @@ class MagicDateFieldNC extends Widget {
         step
       );
       if (result.edited) {
+        let newValue = result.edited;
+        if (cursorPosition > 2) {
+          monthEdited = true;
+          if (!this.dateBeforeMonthChange) {
+            this.dateBeforeMonthChange = MagicDateFieldNC.parseEdited(
+              event.target.value
+            );
+          }
+          if (this.dateBeforeMonthChange) {
+            const date = MagicDateFieldNC.parseEdited(result.edited);
+            const sameDayDate = CalendarHelpers.setSameDay(
+              date,
+              this.dateBeforeMonthChange
+            );
+            if (sameDayDate !== date) {
+              newValue = DateConverters.getDisplayed(sameDayDate);
+            }
+          }
+        }
+
         this.input.changeAndSelect(
-          result.edited,
+          newValue,
           result.selectionStart,
           result.selectionEnd
         );
       }
       event.preventDefault();
+    }
+
+    if (!monthEdited) {
+      this.dateBeforeMonthChange = null;
     }
 
     if (event.ctrlKey && event.key === 'ArrowRight') {
@@ -120,6 +146,10 @@ class MagicDateFieldNC extends Widget {
     }
   };
 
+  handleBlur = () => {
+    this.dateBeforeMonthChange = null;
+  };
+
   handleCalendarChange = (date, menu) => {
     menu.close();
     this.props.onChange(date);
@@ -135,6 +165,7 @@ class MagicDateFieldNC extends Widget {
           parse={this.parse}
           {...props}
           onKeyDown={this.handleKeyDown}
+          onBlur={this.handleBlur}
           className={this.styles.classNames.dateField + ' ' + className}
         />
         <Menu>
