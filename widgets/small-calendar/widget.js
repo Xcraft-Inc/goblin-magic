@@ -37,9 +37,7 @@ class SmallCalendar extends Widget {
   };
 
   setMonth = (index) => {
-    const date = new Date(this.props.date);
-    date.setUTCMonth(index);
-    const newDate = date.toISOString().split('T', 1)[0];
+    const newDate = CalendarHelpers.setMonth(this.props.date, index);
     this.props.onDateChange(newDate);
   };
 

@@ -67,6 +67,21 @@ export function getWeekStart(date = new Date()) {
   return plainDateISO(date);
 }
 
+
+/**
+ * @param {plainDate} plainDate
+ * @param {number} monthIndex 0-11
+ * @returns {plainDate}
+ */
+export function setMonth(plainDate, monthIndex) {
+  const date = new Date(plainDate);
+  date.setUTCMonth(monthIndex);
+  while (date.getUTCMonth() > monthIndex) {
+    date.setUTCDate(date.getUTCDate() - 1);
+  }
+  return date.toISOString().split('T', 1)[0];
+}
+
 /**
  * @typedef {NonNullable<Intl.DateTimeFormatOptions["month"]>} MonthFormat
  */
@@ -156,6 +171,7 @@ const CalendarHelpers = {
   addDays,
   getWeekNumber,
   getWeekStart,
+  setMonth,
   getMonthNames,
   generateWeekStarts,
   generateDays,
