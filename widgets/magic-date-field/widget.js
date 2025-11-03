@@ -156,20 +156,21 @@ class MagicDateFieldNC extends Widget {
   };
 
   render() {
-    const {className = '', required, ...props} = this.props;
+    const {className = '', required, disabled, ...props} = this.props;
     return (
       <InputGroup>
         <MagicTextField
           inputRef={this.inputRef}
           format={this.format}
           parse={this.parse}
+          disabled={disabled}
           {...props}
           onKeyDown={this.handleKeyDown}
           onBlur={this.handleBlur}
           className={this.styles.classNames.dateField + ' ' + className}
         />
         <Menu>
-          <Menu.Button>
+          <Menu.Button disabled={disabled}>
             <Icon path={mdiCalendarMonth} size={0.8} />
           </Menu.Button>
           <Menu.Content position="bottom center" addTabIndex={false}>
