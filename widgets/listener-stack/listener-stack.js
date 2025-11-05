@@ -51,7 +51,7 @@ export default class ListenerStack {
     const stack = this.getStack(type);
     const index = stack.indexOf(listener);
     if (index === -1) {
-      console.error(`Unknown listener for type ${type}`);
+      // console.error(`Unknown listener for type ${type}`);
       return;
     }
     stack.splice(index, 1);
