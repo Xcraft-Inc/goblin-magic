@@ -43,8 +43,9 @@ export default function styles() {
   };
 
   const day = {
-    'padding': '10px 0px',
-    'textAlign': 'center',
+    'display': 'flex',
+    'justifyContent': 'center',
+    'alignItems': 'center',
     'border': '1px solid transparent',
     // 'backgroundColor': 'rgba(255,255,255,0.08)',
 
@@ -54,15 +55,6 @@ export default function styles() {
         'color-mix(in srgb, var(--accent-color), transparent 70%)',
       borderColor:
         'color-mix(in srgb, var(--button-accent-color), transparent 40%)',
-    },
-
-    '&[data-today=true]': {
-      '& > :first-child': {
-        borderRadius: '50%',
-        padding: '6px',
-        backgroundColor:
-          'color-mix(in srgb, var(--text-color), transparent 90%)',
-      },
     },
 
     '&[data-out-of-range=true]': {
@@ -85,7 +77,17 @@ export default function styles() {
   };
 
   const dayNumber = {
-    // padding: '6px',
+    'display': 'flex',
+    'justifyContent': 'center',
+    'alignItems': 'center',
+    'width': '33px',
+    'height': '33px',
+    'margin': '3px',
+    'borderRadius': '50%',
+
+    '[data-today=true] > &': {
+      backgroundColor: 'color-mix(in srgb, var(--text-color), transparent 90%)',
+    },
   };
 
   return {
