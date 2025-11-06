@@ -106,14 +106,25 @@ export default function styles() {
     'boxShadow': '0 0 20px rgba(0, 0, 0, 0.2)',
     'color': 'var(--text-color)',
 
+    '.prefers-reduced-effects &': {
+      'backgroundColor': 'rgba(33,48,73,1)',
+      '@media (prefers-color-scheme: light)': {
+        backgroundColor: 'rgba(236,239,246,1)',
+      },
+    },
+
     '&::before': {
-      content: "''",
-      position: 'absolute',
-      width: '100%',
-      height: '100%',
-      borderRadius: '5px',
-      backdropFilter: 'blur(10px)',
-      zIndex: -1,
+      'content': "''",
+      'position': 'absolute',
+      'width': '100%',
+      'height': '100%',
+      'borderRadius': '5px',
+      'backdropFilter': 'blur(10px)',
+      'zIndex': -1,
+
+      '.prefers-reduced-effects &': {
+        backdropFilter: 'none',
+      },
     },
   };
 

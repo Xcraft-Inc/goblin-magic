@@ -12,6 +12,14 @@ export default function styles() {
     '@media (prefers-color-scheme: light)': {
       background: 'rgba(248, 241, 248, 0.85)',
     },
+
+    '.prefers-reduced-effects &': {
+      'background': 'rgba(41, 51, 77, 1)',
+      'backdropFilter': 'none',
+      '@media (prefers-color-scheme: light)': {
+        background: 'rgba(241, 237, 244, 1)',
+      },
+    },
   };
 
   return {
