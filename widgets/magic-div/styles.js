@@ -13,7 +13,7 @@ export default function styles() {
       background: 'rgba(248, 241, 248, 0.85)',
     },
 
-    '.prefers-reduced-effects &': {
+    '.prefers-reduced-transparency &': {
       'background': 'rgba(41, 51, 77, 1)',
       'backdropFilter': 'none',
       '@media (prefers-color-scheme: light)': {

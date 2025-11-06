@@ -106,7 +106,7 @@ export default function styles() {
     'boxShadow': '0 0 20px rgba(0, 0, 0, 0.2)',
     'color': 'var(--text-color)',
 
-    '.prefers-reduced-effects &': {
+    '.prefers-reduced-transparency &': {
       'backgroundColor': 'rgba(33,48,73,1)',
       '@media (prefers-color-scheme: light)': {
         backgroundColor: 'rgba(236,239,246,1)',
@@ -122,7 +122,7 @@ export default function styles() {
       'backdropFilter': 'blur(10px)',
       'zIndex': -1,
 
-      '.prefers-reduced-effects &': {
+      '.prefers-reduced-transparency &': {
         backdropFilter: 'none',
       },
     },
