@@ -10,6 +10,7 @@ import {mdiCalendarMonth} from '@mdi/js';
 import Menu from '../menu/widget.js';
 import CalendarMenuContent from '../calendar-menu-content/widget.js';
 import CalendarHelpers from '../calendar-helpers.js';
+import CalendarMenu from '../calendar-menu/widget.js';
 
 class MagicDateFieldNC extends Widget {
   constructor() {
@@ -150,17 +151,21 @@ class MagicDateFieldNC extends Widget {
     this.dateBeforeMonthChange = null;
   };
 
-  handleCalendarChange = (date, menu) => {
-    menu.close();
-    this.props.onChange(date);
-  };
-
   render() {
-    const {className = '', required, disabled, ...props} = this.props;
+    const {
+      value,
+      onChange,
+      className = '',
+      required,
+      disabled,
+      ...props
+    } = this.props;
     return (
       <InputGroup>
         <MagicTextField
           inputRef={this.inputRef}
+          value={value}
+          onChange={onChange}
           format={this.format}
           parse={this.parse}
           disabled={disabled}
@@ -169,23 +174,11 @@ class MagicDateFieldNC extends Widget {
           onBlur={this.handleBlur}
           className={this.styles.classNames.dateField + ' ' + className}
         />
-        <Menu>
+        <CalendarMenu allowEmpty={!required} value={value} onChange={onChange}>
           <Menu.Button disabled={disabled}>
             <Icon path={mdiCalendarMonth} size={0.8} />
           </Menu.Button>
-          <Menu.Content position="bottom center" addTabIndex={false}>
-            <Menu.Context.Consumer>
-              {(menu) => (
-                <CalendarMenuContent
-                  allowEmpty={!required}
-                  value={this.props.value || DateConverters.getNowCanonical()}
-                  onChange={(date) => this.handleCalendarChange(date, menu)}
-                  onCancel={menu.close}
-                />
-              )}
-            </Menu.Context.Consumer>
-          </Menu.Content>
-        </Menu>
+        </CalendarMenu>
       </InputGroup>
     );
   }
