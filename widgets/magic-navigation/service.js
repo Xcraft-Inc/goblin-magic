@@ -473,7 +473,6 @@ class MagicNavigation extends Elf {
    * @returns {Promise<this>}
    */
   async create(id, desktopId, clientSessionId, existingWindowId) {
-    this.desktopId = desktopId;
     this.clientSessionId = clientSessionId;
     this.logic.create(id, existingWindowId);
     return this;
@@ -581,7 +580,7 @@ class MagicNavigation extends Elf {
         const serviceArgs = view.serviceArgs || [];
         await new ServiceClass(this).create(
           serviceId,
-          this.desktopId,
+          await this.winDesktopId(),
           ...serviceArgs
         );
       }
