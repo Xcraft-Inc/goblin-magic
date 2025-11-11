@@ -12,7 +12,7 @@ const {
 const isEqual = require('lodash/isEqual.js');
 
 /**
- * @typedef {`desktop@${string}@${string}`} DesktopId
+ * @typedef {`${string}@${string}`} DesktopId
  */
 
 const id = string;
