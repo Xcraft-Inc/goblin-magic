@@ -1139,6 +1139,12 @@ class MagicNavigation extends Elf {
         id: serviceId,
         desktopId: windowId,
       });
+      await this.quest.warehouse.graft({
+        branch: serviceId,
+        fromFeed: oldWindowId,
+        toFeed: windowId,
+        reverse: true,
+      });
       await this.kill(serviceId, this.id, oldWindowId);
     }
     this.logic.moveTabToNewWindow(panelId, tabId, windowId);
