@@ -2,7 +2,6 @@ import * as styles from './styles.js';
 import React from 'react';
 import Widget from 'goblin-laboratory/widgets/widget';
 import withC from 'goblin-laboratory/widgets/connect-helpers/with-c';
-import {TranslatableButton} from 'goblin-nabu/widgets/helpers/element-helpers.js';
 
 class MagicButtonNC extends Widget {
   constructor() {
@@ -56,21 +55,7 @@ class MagicButtonNC extends Widget {
       typeof this.props.children === 'string' &&
       this.props.children.length === 1;
 
-    return title ? (
-      <TranslatableButton
-        {...props}
-        className={this.styles.classNames.button + ' button ' + className}
-        data-enabled={enabled}
-        data-underlined={underlined}
-        data-big={big}
-        data-simple={simple}
-        data-len1={len1}
-        onPointerDown={onPointerDown && this.handlePointerDown}
-        title={title}
-      >
-        {this.renderChildren(spinner, len1)}
-      </TranslatableButton>
-    ) : (
+    return (
       <button
         {...props}
         className={this.styles.classNames.button + ' button ' + className}
@@ -80,6 +65,7 @@ class MagicButtonNC extends Widget {
         data-simple={simple}
         data-len1={len1}
         onPointerDown={onPointerDown && this.handlePointerDown}
+        title={title}
       >
         {this.renderChildren(spinner, len1)}
       </button>
