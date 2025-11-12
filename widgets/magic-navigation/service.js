@@ -557,34 +557,47 @@ class MagicNavigation extends Elf {
   /**
    * @template {ViewParam} T
    * @param {View<T>} view
-   * @param {DesktopId} desktopId
+   * @param {DesktopId} [userDesktopId]
    * @returns {Promise<string | undefined>}
    */
-  async _createService(view, desktopId) {
+  async _createService(view, userDesktopId) {
+    if (!userDesktopId) {
+      userDesktopId = await this.winDesktopId();
+    }
+
+    let serviceId = view.serviceId;
+    if (serviceId) {
+      /* Attach this service to the user desktop feed */
+      await this.quest.create(serviceId, {
+        ...view.serviceArgs,
+        id: serviceId,
+        desktopId: userDesktopId,
+      });
+      return serviceId;
+    }
+
     if (!view.service) {
       return;
     }
 
-    let serviceId = view.serviceId;
-    if (!serviceId) {
-      if (typeof view.service === 'string') {
-        serviceId = `${view.service}@${Elf.uuid()}`;
-        await this.quest.create(serviceId, {
-          ...view.serviceArgs,
-          id: serviceId,
-          desktopId,
-        });
-      } else {
-        const ServiceClass = view.service;
-        serviceId = `${Elf.goblinName(ServiceClass)}@${Elf.uuid()}`;
-        const serviceArgs = view.serviceArgs || [];
-        await new ServiceClass(this).create(
-          serviceId,
-          await this.winDesktopId(),
-          ...serviceArgs
-        );
-      }
+    if (typeof view.service === 'string') {
+      serviceId = `${view.service}@${Elf.uuid()}`;
+      await this.quest.create(serviceId, {
+        ...view.serviceArgs,
+        id: serviceId,
+        desktopId: userDesktopId,
+      });
+    } else {
+      const ServiceClass = view.service;
+      serviceId = `${Elf.goblinName(ServiceClass)}@${Elf.uuid()}`;
+      const serviceArgs = view.serviceArgs || [];
+      await new ServiceClass(this).create(
+        serviceId,
+        userDesktopId,
+        ...serviceArgs
+      );
     }
+
     return serviceId;
   }
 
@@ -752,8 +765,7 @@ class MagicNavigation extends Elf {
       panelId = window.panelIds[newPanelIndex];
     }
     const tabId = view.tabId || `tab@${this.quest.uuidV4()}`;
-    const serviceId =
-      view.serviceId || (await this._createService(view, desktopId));
+    const serviceId = await this._createService(view);
     const tab = {
       serviceId,
       widget: view.widget,
@@ -1263,8 +1275,7 @@ class MagicNavigation extends Elf {
 
     const dialogId = `dialog@${this.quest.uuidV4()}`;
 
-    const serviceId =
-      newView.serviceId || (await this._createService(newView, windowId));
+    const serviceId = await this._createService(newView, windowId);
     const dialog = {
       serviceId,
       widget: newView.widget,
@@ -1352,8 +1363,7 @@ class MagicNavigation extends Elf {
     if (!currentView) {
       throw new Error(`Missing view '${viewId}'`);
     }
-    const serviceId =
-      view.serviceId || (await this._createService(view, desktopId));
+    const serviceId = await this._createService(view);
 
     const viewState = {
       serviceId,
