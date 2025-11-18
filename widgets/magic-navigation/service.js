@@ -1061,6 +1061,17 @@ class MagicNavigation extends Elf {
     if (!dstPanelId) {
       throw new Error(`Unknown tab '${dstTabId}'`);
     }
+    const srcWindowId = await this.findPanelWindowId(srcPanelId);
+    if (!srcWindowId) {
+      throw new Error(`Unknown panel '${srcPanelId}'`);
+    }
+    const dstWindowId = await this.findPanelWindowId(dstPanelId);
+    if (!dstWindowId) {
+      throw new Error(`Unknown panel '${dstPanelId}'`);
+    }
+    if (srcWindowId !== dstWindowId) {
+      await this.moveTabToWindow(srcTabId, dstWindowId);
+    }
     this.logic.moveTab(srcPanelId, srcTabId, dstPanelId, dstTabId, side);
   }
 
@@ -1129,6 +1140,38 @@ class MagicNavigation extends Elf {
       throw new Error(`Missing view for tab '${tabId}'`);
     }
     await this.openNewTab(view, windowId, panelId);
+  }
+
+  /**
+   * @param {id} tabId
+   * @param {id} dstWindowId
+   */
+  async moveTabToWindow(tabId, dstWindowId) {
+    const srcPanelId = await this.findPanelId(tabId);
+    if (!srcPanelId) {
+      throw new Error(`Unknown tab '${tabId}'`);
+    }
+    const oldWindowId = await this.findPanelWindowId(srcPanelId);
+    if (!oldWindowId) {
+      throw new Error(`Unknown panel '${srcPanelId}'`);
+    }
+    const {serviceId} = this.state.tabs[tabId];
+    if (!serviceId) {
+      return;
+    }
+
+    // Attach the service to the window
+    await this.quest.create(serviceId, {
+      id: serviceId,
+      desktopId: dstWindowId,
+    });
+    await this.quest.warehouse.graft({
+      branch: serviceId,
+      fromFeed: oldWindowId,
+      toFeed: dstWindowId,
+      reverse: true,
+    });
+    await this.kill(serviceId, this.id, oldWindowId);
   }
 
   /**
