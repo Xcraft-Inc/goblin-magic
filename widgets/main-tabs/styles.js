@@ -18,7 +18,8 @@ export default function styles() {
     },
 
     '& > *': {
-      'padding': '10px 8px 8px 12px',
+      'padding': '8px 8px 6px 12px',
+      'minHeight': '42px',
       'border':
         '1px solid color-mix(in srgb, var(--text-color), transparent 75%)',
       'borderRadius': '3px',
