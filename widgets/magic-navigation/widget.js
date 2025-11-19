@@ -224,11 +224,12 @@ let MagicNavigationTabs = class extends Widget {
     this.doFor('magicNavigation@main', 'activateTab', {tabId});
   };
 
-  moveTab = (srcTabId, dstTabId, side) => {
+  moveTab = (tabId, dstIndex) => {
+    const dstPanelId = this.props.panelId;
     this.doFor('magicNavigation@main', 'moveTab', {
-      srcTabId,
-      dstTabId,
-      side,
+      tabId,
+      dstPanelId,
+      dstIndex,
     });
   };
 
@@ -247,7 +248,7 @@ let MagicNavigationTabs = class extends Widget {
       <MainTabs
         currentTab={currentTabId}
         onTabClick={this.setTab}
-        onTabDrop={this.moveTab}
+        onTabMove={this.moveTab}
         tabIndex="0"
         onKeyDown={this.handleKeyDown}
       >
@@ -296,6 +297,7 @@ let MagicNavigationPanel = class extends Widget {
         <div className={this.styles.classNames.panelTop}>
           <MagicNavigationTabs
             id={this.props.id}
+            panelId={this.props.panelId}
             currentTabId={panel.get('currentTabId')}
             tabIds={panel.get('tabIds')}
             widgets={this.props.widgets}

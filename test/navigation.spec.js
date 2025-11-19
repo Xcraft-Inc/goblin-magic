@@ -44,37 +44,31 @@ describe('goblin.magic.navigation', function () {
 
     /* 1,2,3 → 2,3,1 */
     restore(navLogic);
-    navLogic.moveTab('panel@1', 'tab@1', 'panel@1', 'tab@3', 'right');
+    navLogic.moveTab('tab@1', 'panel@1', 'panel@1', 2);
     expect(navLogic.state.panels['panel@1'].tabIds.toJS()) //
       .to.be.eql(['tab@2', 'tab@3', 'tab@1']);
 
     /* 1,2,3 → 2,1,3 */
     restore(navLogic);
-    navLogic.moveTab('panel@1', 'tab@1', 'panel@1', 'tab@3', 'left');
-    expect(navLogic.state.panels['panel@1'].tabIds.toJS()) //
-      .to.be.eql(['tab@2', 'tab@1', 'tab@3']);
-
-    /* 1,2,3 → 2,1,3 */
-    restore(navLogic);
-    navLogic.moveTab('panel@1', 'tab@1', 'panel@1', 'tab@2', 'right');
+    navLogic.moveTab('tab@1', 'panel@1', 'panel@1', 1);
     expect(navLogic.state.panels['panel@1'].tabIds.toJS()) //
       .to.be.eql(['tab@2', 'tab@1', 'tab@3']);
 
     /* 1,2,3 → 1,2,3 */
     restore(navLogic);
-    navLogic.moveTab('panel@1', 'tab@1', 'panel@1', 'tab@2', 'left');
+    navLogic.moveTab('tab@1', 'panel@1', 'panel@1', 0);
     expect(navLogic.state.panels['panel@1'].tabIds.toJS()) //
       .to.be.eql(['tab@1', 'tab@2', 'tab@3']);
 
     /* 1,2,3 → 3,1,2 */
     restore(navLogic);
-    navLogic.moveTab('panel@1', 'tab@3', 'panel@1', 'tab@1', 'left');
+    navLogic.moveTab('tab@3', 'panel@1', 'panel@1', 0);
     expect(navLogic.state.panels['panel@1'].tabIds.toJS()) //
       .to.be.eql(['tab@3', 'tab@1', 'tab@2']);
 
     /* 1,2,3 → 1,3,2 */
     restore(navLogic);
-    navLogic.moveTab('panel@1', 'tab@3', 'panel@1', 'tab@1', 'right');
+    navLogic.moveTab('tab@3', 'panel@1', 'panel@1', 1);
     expect(navLogic.state.panels['panel@1'].tabIds.toJS()) //
       .to.be.eql(['tab@1', 'tab@3', 'tab@2']);
 
@@ -82,7 +76,7 @@ describe('goblin.magic.navigation', function () {
 
     /* 2,3 → 4,5,6,1 */
     restore(navLogic);
-    navLogic.moveTab('panel@1', 'tab@1', 'panel@2', 'tab@6', 'right');
+    navLogic.moveTab('tab@1', 'panel@1', 'panel@2', 3);
     expect(navLogic.state.panels['panel@1'].tabIds.toJS()) //
       .to.be.eql(['tab@2', 'tab@3']);
     expect(navLogic.state.panels['panel@2'].tabIds.toJS()) //
@@ -90,7 +84,7 @@ describe('goblin.magic.navigation', function () {
 
     /* 1,3 → 2,4,5,6 */
     restore(navLogic);
-    navLogic.moveTab('panel@1', 'tab@2', 'panel@2', 'tab@4', 'left');
+    navLogic.moveTab('tab@2', 'panel@1', 'panel@2', 0);
     expect(navLogic.state.panels['panel@1'].tabIds.toJS()) //
       .to.be.eql(['tab@1', 'tab@3']);
     expect(navLogic.state.panels['panel@2'].tabIds.toJS()) //
@@ -98,7 +92,7 @@ describe('goblin.magic.navigation', function () {
 
     /* 1,2 → 4,5,3,6 */
     restore(navLogic);
-    navLogic.moveTab('panel@1', 'tab@3', 'panel@2', 'tab@5', 'right');
+    navLogic.moveTab('tab@3', 'panel@1', 'panel@2', 2);
     expect(navLogic.state.panels['panel@1'].tabIds.toJS()) //
       .to.be.eql(['tab@1', 'tab@2']);
     expect(navLogic.state.panels['panel@2'].tabIds.toJS()) //
@@ -106,9 +100,9 @@ describe('goblin.magic.navigation', function () {
 
     /* . → 2,4,1,5,6,3 */
     restore(navLogic);
-    navLogic.moveTab('panel@1', 'tab@2', 'panel@2', 'tab@4', 'left');
-    navLogic.moveTab('panel@1', 'tab@1', 'panel@2', 'tab@5', 'left');
-    navLogic.moveTab('panel@1', 'tab@3', 'panel@2', 'tab@6', 'right');
+    navLogic.moveTab('tab@2', 'panel@1', 'panel@2', 0);
+    navLogic.moveTab('tab@1', 'panel@1', 'panel@2', 2);
+    navLogic.moveTab('tab@3', 'panel@1', 'panel@2', 5);
     expect(navLogic.state.panels['panel@1'].tabIds.toJS()) //
       .to.be.eql([]);
     expect(navLogic.state.panels['panel@2'].tabIds.toJS()) //

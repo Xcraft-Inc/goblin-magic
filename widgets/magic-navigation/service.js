@@ -259,36 +259,26 @@ class MagicNavigationLogic extends Elf.Spirit {
   }
 
   /**
+   * @param {id} tabId
    * @param {id} srcPanelId
-   * @param {id} srcTabId
    * @param {id} dstPanelId
-   * @param {id} dstTabId
-   * @param {`left`|`right`} side
+   * @param {number} dstIndex
    */
-  moveTab(srcPanelId, srcTabId, dstPanelId, dstTabId, side) {
+  moveTab(tabId, srcPanelId, dstPanelId, dstIndex) {
     const {state} = this;
     const tabs = [...state.panels[dstPanelId].tabIds];
 
     if (srcPanelId === dstPanelId) {
-      const srcIndex = state.panels[srcPanelId].tabIds.indexOf(srcTabId);
-      if (side === 'right') {
-        tabs.splice(srcIndex, 1);
-      } else {
-        tabs.splice(srcIndex, 1);
-      }
+      const srcIndex = state.panels[srcPanelId].tabIds.indexOf(tabId);
+      tabs.splice(srcIndex, 1);
     }
 
-    if (side === 'right') {
-      const dstIndex = tabs.indexOf(dstTabId);
-      tabs.splice(dstIndex + 1, 0, srcTabId);
-    } else {
-      const dstIndex = tabs.indexOf(dstTabId);
-      tabs.splice(dstIndex, 0, srcTabId);
-    }
+    tabs.splice(dstIndex, 0, tabId);
+
     state.panels[dstPanelId].tabIds = tabs;
 
     if (srcPanelId !== dstPanelId) {
-      this._removeTabAndUpdatePanel(state, srcPanelId, srcTabId);
+      this._removeTabAndUpdatePanel(state, srcPanelId, tabId);
     }
   }
 
@@ -1045,21 +1035,14 @@ class MagicNavigation extends Elf {
   }
 
   /**
-   * @param {id} srcTabId
-   * @param {id} dstTabId
-   * @param {`left`|`right`} side
+   * @param {id} tabId
+   * @param {id} dstPanelId
+   * @param {number} dstIndex
    */
-  async moveTab(srcTabId, dstTabId, side) {
-    if (srcTabId === dstTabId) {
-      return;
-    }
-    const srcPanelId = await this.findPanelId(srcTabId);
+  async moveTab(tabId, dstPanelId, dstIndex) {
+    const srcPanelId = await this.findPanelId(tabId);
     if (!srcPanelId) {
-      throw new Error(`Unknown tab '${srcTabId}'`);
-    }
-    const dstPanelId = await this.findPanelId(dstTabId);
-    if (!dstPanelId) {
-      throw new Error(`Unknown tab '${dstTabId}'`);
+      throw new Error(`Unknown tab '${tabId}'`);
     }
     const srcWindowId = await this.findPanelWindowId(srcPanelId);
     if (!srcWindowId) {
@@ -1070,9 +1053,9 @@ class MagicNavigation extends Elf {
       throw new Error(`Unknown panel '${dstPanelId}'`);
     }
     if (srcWindowId !== dstWindowId) {
-      await this.moveTabToWindow(srcTabId, dstWindowId);
+      await this.moveTabToWindow(tabId, dstWindowId);
     }
-    this.logic.moveTab(srcPanelId, srcTabId, dstPanelId, dstTabId, side);
+    this.logic.moveTab(tabId, srcPanelId, dstPanelId, dstIndex);
   }
 
   /**

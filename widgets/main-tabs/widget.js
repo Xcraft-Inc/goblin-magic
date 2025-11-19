@@ -15,6 +15,7 @@ class MainTabs extends Widget {
       <TabLayout.Tabs
         {...props}
         className={this.styles.classNames.mainTabs + ' ' + className}
+        dragGroup="main-tabs"
       ></TabLayout.Tabs>
     );
   }

@@ -90,8 +90,23 @@ export default function styles() {
           'color-mix(in srgb, var(--button-accent-color), transparent 10%)',
       },
 
-      ':active': {
+      ':active:not([data-dragged=true]': {
         opacity: 0.8,
+      },
+
+      '&[data-dragged=true]': {
+        opacity: 1,
+        backgroundColor:
+          'color-mix(in srgb, var(--button-accent-color), transparent 70%)',
+        borderColor:
+          'color-mix(in srgb, var(--button-accent-color), transparent 10%)',
+      },
+
+      '&.drop-element.drop-element': {
+        border:
+          '2px dashed color-mix(in srgb, var(--button-accent-color), transparent 30%)',
+        backgroundColor: 'transparent',
+        backdropFilter: 'none',
       },
 
       '&:focus-visible': {
