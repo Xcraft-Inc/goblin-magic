@@ -276,6 +276,9 @@ class MagicNavigationLogic extends Elf.Spirit {
     tabs.splice(dstIndex, 0, tabId);
 
     state.panels[dstPanelId].tabIds = tabs;
+    if (tabs.length === 1) {
+      state.panels[dstPanelId].currentTabId = tabId;
+    }
 
     if (srcPanelId !== dstPanelId) {
       this._removeTabAndUpdatePanel(state, srcPanelId, tabId);
