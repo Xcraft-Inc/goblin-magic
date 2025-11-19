@@ -232,11 +232,27 @@ class TabLayoutTabs extends Widget {
 
     const movedTabId = this.getMovedTabId(event);
     const movedWidth = this.getMovedWidth(event);
-
     const movedDiff = this.getMovedDiff(event);
-    const movedX =
-      movedDiff > 0 ? event.clientX + movedDiff / 2 : event.clientX + movedDiff;
+
+    let dx = 0;
+    if (this.lastClientX !== undefined) {
+      dx = event.clientX - this.lastClientX;
+    }
+    if (dx === 0) {
+      dx = this.lastDx || 0;
+    } else {
+      this.lastDx = dx;
+    }
+    this.lastClientX = event.clientX;
+
+    let movedX = event.clientX + movedDiff;
+    if (dx > 0) {
+      movedX = event.clientX + movedDiff + movedWidth / 3;
+    } else if (dx < 0) {
+      movedX = event.clientX + movedDiff - movedWidth / 3;
+    }
     const movedY = event.clientY;
+
     if (this.debug) {
       this.addDebugV(movedX, movedY, 'rgba(0,200,0,0.4)', 0.2);
     }
