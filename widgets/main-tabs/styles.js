@@ -1,6 +1,7 @@
 export default function styles() {
   const mainTabs = {
     // 'color': 'white',
+    'flexGrow': 1,
     'padding': '4px 7px',
     'display': 'flex',
     'flexDirection': 'row',
