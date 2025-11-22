@@ -150,7 +150,7 @@ export default function styles() {
   };
 
   const menuHr = {
-    width: 'calc(100% - 20px)',
+    width: 'calc(100% - 12px)',
     opacity: '0.5',
     margin: '3px 0',
     alignSelf: 'center',
