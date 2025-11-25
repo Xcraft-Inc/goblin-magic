@@ -68,7 +68,7 @@ class SmallCalendarGrid extends Widget {
   }
 
   renderWeeks(currentDay) {
-    const {startDate} = this.props;
+    const {startDate, selectWeek} = this.props;
     const weekStarts = CalendarHelpers.generateWeekStarts(
       CalendarHelpers.getMonthStart(startDate),
       6
@@ -76,7 +76,11 @@ class SmallCalendarGrid extends Widget {
     return weekStarts.map((weekStart) => {
       const days = CalendarHelpers.generateDays(weekStart);
       return (
-        <div key={weekStart} className={this.styles.classNames.weekRow}>
+        <div
+          key={weekStart}
+          className={this.styles.classNames.weekRow}
+          data-select-week={selectWeek}
+        >
           <div className={this.styles.classNames.weekNumber}>
             {CalendarHelpers.getWeekNumber(toJsDate(weekStart))}
           </div>

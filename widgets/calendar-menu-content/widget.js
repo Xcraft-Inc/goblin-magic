@@ -52,6 +52,7 @@ class CalendarMenuContent extends Widget {
       >
         <SmallCalendar
           ref={this.calendarRef}
+          selectWeek={this.props.selectWeek}
           date={this.state.date}
           onDateChange={this.handleDateChange}
           onDayClick={this.handleDayClick}

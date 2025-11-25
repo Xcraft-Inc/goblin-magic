@@ -17,7 +17,7 @@ class CalendarMenu extends Widget {
   };
 
   render() {
-    const {allowEmpty, value, onChange, children} = this.props;
+    const {allowEmpty, selectWeek, value, onChange, children} = this.props;
     return (
       <Menu>
         {children}
@@ -26,6 +26,7 @@ class CalendarMenu extends Widget {
             {(menu) => (
               <CalendarMenuContent
                 allowEmpty={allowEmpty}
+                selectWeek={selectWeek}
                 value={value || DateConverters.getNowCanonical()}
                 onChange={(date) => this.handleCalendarChange(date, menu)}
                 onCancel={menu.close}

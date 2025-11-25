@@ -33,6 +33,11 @@ export default function styles() {
 
   const weekRow = {
     ...row,
+
+    '&[data-select-week=true]:hover': {
+      backgroundColor:
+        'color-mix(in srgb, var(--accent-color), transparent 75%)',
+    },
   };
 
   const weekNumber = {
