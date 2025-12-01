@@ -81,10 +81,8 @@ class MagicTableRow extends Widget {
   }
 
   componentDidMount() {
-    this.observer = new MutationObserver((mutations, observer) => {
-      for (const mutation of mutations) {
-        this.props.onUpdate(mutation.target.data);
-      }
+    this.observer = new MutationObserver(() => {
+      this.props.onUpdate();
     });
     this.observer.observe(this.row.current, {
       subtree: true,
