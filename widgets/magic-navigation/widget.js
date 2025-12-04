@@ -79,16 +79,18 @@ let MagicNavigationViews = class extends Widget {
         />
       );
     }
-    return tabIds.map((tabId) => (
-      <MagicNavigationView
-        key={tabId}
-        id={this.props.id}
-        viewId={tabId}
-        view={C(`.tabs.${tabId}`)}
-        widgets={this.props.widgets}
-        visible={tabId === currentTabId}
-      />
-    ));
+    return tabIds
+      .map((tabId) => (
+        <MagicNavigationView
+          key={tabId}
+          id={this.props.id}
+          viewId={tabId}
+          view={C(`.tabs.${tabId}`)}
+          widgets={this.props.widgets}
+          visible={tabId === currentTabId}
+        />
+      ))
+      .toArray();
   }
 };
 MagicNavigationViews = withC(MagicNavigationViews);
@@ -353,17 +355,19 @@ let MagicNavigationPanels = class extends Widget {
     return (
       <div className={this.styles.classNames.panels}>
         <MultiSplitter key={panelIds.length}>
-          {panelIds.map((panelId, index) => (
-            <MagicNavigationPanel
-              key={panelId}
-              id={id}
-              windowId={windowId}
-              panelId={panelId}
-              panel={C(`.panels.${panelId}`)}
-              widgets={widgets}
-              topRight={index === lastPanelIndex ? topRight : null}
-            />
-          ))}
+          {panelIds
+            .map((panelId, index) => (
+              <MagicNavigationPanel
+                key={panelId}
+                id={id}
+                windowId={windowId}
+                panelId={panelId}
+                panel={C(`.panels.${panelId}`)}
+                widgets={widgets}
+                topRight={index === lastPanelIndex ? topRight : null}
+              />
+            ))
+            .toArray()}
         </MultiSplitter>
         {rightPanel}
       </div>
@@ -427,14 +431,16 @@ let MagicNavigationDialogs = class extends Widget {
     if (!dialogIds) {
       return null; // Loading
     }
-    return dialogIds.map((dialogId) => (
-      <MagicNavigationDialog
-        key={dialogId}
-        dialogId={dialogId}
-        view={C(`.tabs.${dialogId}`)}
-        widgets={widgets}
-      />
-    ));
+    return dialogIds
+      .map((dialogId) => (
+        <MagicNavigationDialog
+          key={dialogId}
+          dialogId={dialogId}
+          view={C(`.tabs.${dialogId}`)}
+          widgets={widgets}
+        />
+      ))
+      .toArray();
   }
 };
 MagicNavigationDialogs = withC(MagicNavigationDialogs);

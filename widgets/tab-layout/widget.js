@@ -341,7 +341,9 @@ class TabLayoutTabs extends Widget {
       ...props
     } = this.props;
     const className = this.props.className || '';
-    const childrenArray = React.Children.toArray(children);
+    const childrenArray = React.Children.toArray(
+      children?.toJS?.() || children
+    );
     if (this.state.dropElement) {
       let draggedIndex = childrenArray.findIndex(
         (child) => child?.props.value === this.state.dropElementId
