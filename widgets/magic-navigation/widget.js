@@ -46,7 +46,9 @@ let MagicNavigationView = class extends Widget {
     return (
       <div className={this.styles.classNames.view} data-visible={visible}>
         <WithModel model={serviceId ? `backend.${serviceId}` : ''}>
-          <ViewContext.Provider value={view.set('id', viewId)}>
+          <ViewContext.Provider
+            value={view.set('id', viewId).set('visible', visible)}
+          >
             <ErrorHandler big>
               <Component id={serviceId} viewId={viewId} {...widgetProps} />
             </ErrorHandler>
