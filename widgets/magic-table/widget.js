@@ -289,7 +289,6 @@ class MagicTableContainer extends Widget {
       sortOrder,
       sortCustom,
       showMenu,
-      dispatch,
       ...props
     } = this.props;
 

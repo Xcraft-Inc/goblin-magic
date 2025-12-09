@@ -68,7 +68,6 @@ class MagicDatetimeFieldNC extends Widget {
       requiredDate,
       requiredTime,
       isEndTime,
-      dispatch,
       ...props
     } = this.props;
     const {date, time} = value ? parseZonedDateTime(value) : {};
