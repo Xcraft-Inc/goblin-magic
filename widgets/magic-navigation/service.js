@@ -707,15 +707,9 @@ class MagicNavigation extends Elf {
     this.logic.activatePanel(windowId, panelId);
   }
 
-  async openEmptyWindow() {
-    const windowId = await this._newWindow();
-    this.logic.openEmptyWindow(windowId);
-  }
-
-  async openViewInNewWindow(view, rootWidget = 'yeti-root') {
+  async openEmptyWindow(rootWidget = 'yeti-root') {
     const windowId = await this._newWindow(rootWidget);
-    const serviceId = await this._createService(view, windowId);
-    return serviceId;
+    this.logic.openEmptyWindow(windowId);
   }
 
   /**
