@@ -482,13 +482,13 @@ class MagicNavigation extends Elf {
 
   /**
    * @returns {Promise<DesktopId>}
+   * @param {string} [rootWidget]
    */
-  async _newWindow() {
+  async _newWindow(rootWidget = 'yeti-root') {
     const clientAPI = this.quest.getAPI('client');
     const session = this.quest.uuidV4();
     const username = this.quest.user.login;
     const userId = this.quest.user.id;
-    const rootWidget = 'yeti-root';
     const configuration = {};
     const mainGoblin = 'yeti';
     const mandate = 'yeti';
@@ -710,6 +710,12 @@ class MagicNavigation extends Elf {
   async openEmptyWindow() {
     const windowId = await this._newWindow();
     this.logic.openEmptyWindow(windowId);
+  }
+
+  async openViewInNewWindow(view, rootWidget = 'yeti-root') {
+    const windowId = await this._newWindow(rootWidget);
+    const serviceId = await this._createService(view, windowId);
+    return serviceId;
   }
 
   /**
