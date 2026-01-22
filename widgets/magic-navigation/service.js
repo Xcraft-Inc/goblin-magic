@@ -9,6 +9,7 @@ const {
   record,
   boolean,
 } = require('xcraft-core-stones');
+const locks = require('xcraft-core-utils/lib/locks.js');
 const isEqual = require('lodash/isEqual.js');
 
 /**
@@ -448,6 +449,8 @@ class MagicNavigationLogic extends Elf.Spirit {
 class MagicNavigation extends Elf {
   logic = Elf.getLogic(MagicNavigationLogic);
   state = new MagicNavigationState();
+
+  _mutex = locks.getMutex;
 
   /** @type {string} */
   clientSessionId;
@@ -917,6 +920,8 @@ class MagicNavigation extends Elf {
    * @returns {Promise<id>}
    */
   async highlightOrOpenTab(view, desktopId, panelId) {
+    await this._mutex.lock(this.id);
+    this.quest.defer(() => this._mutex.unlock(this.id));
     let viewId = await this.findExistingView(view, desktopId, 'tab');
     if (!viewId) {
       viewId = await this.openNewTab(view, desktopId, panelId, false);
