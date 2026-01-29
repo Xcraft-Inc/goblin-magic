@@ -1132,7 +1132,10 @@ class MagicNavigation extends Elf {
     if (!view) {
       throw new Error(`Missing view for tab '${tabId}'`);
     }
-    await this.openNewTab(view, windowId, panelId);
+    //Ensure new view infos without tabId
+    const viewCopy = {...view};
+    delete viewCopy.tabId;
+    await this.openNewTab(viewCopy, windowId, panelId);
   }
 
   /**
