@@ -40,6 +40,7 @@ class ViewStateShape {
   widgetProps = option(object);
   highlighted = boolean;
   parentViewId = option(id);
+  tabId = option(id); //used when we restore a tab
 }
 
 class ViewState extends Sculpt(ViewStateShape) {}
@@ -62,6 +63,7 @@ class ViewState extends Sculpt(ViewStateShape) {}
  * @property {string} [View.widget]
  * @property {object} [View.widgetProps]
  * @property {View} [View.previousView]
+ * @property {string} [View.tabId]
  */
 
 /**
@@ -73,6 +75,7 @@ class ViewState extends Sculpt(ViewStateShape) {}
  * @property {string} [View.widget]
  * @property {object} [View.widgetProps]
  * @property {View} [View.previousView]
+ * @property {string} [View.tabId]
  */
 
 /**
@@ -759,7 +762,7 @@ class MagicNavigation extends Elf {
       })();
       panelId = window.panelIds[newPanelIndex];
     }
-    const tabId = `tab@${this.quest.uuidV4()}`;
+    const tabId = view.tabId || `tab@${this.quest.uuidV4()}`;
     const serviceId = await this._createService(view);
     const tab = {
       serviceId,
