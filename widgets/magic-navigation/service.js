@@ -661,12 +661,13 @@ class MagicNavigation extends Elf {
    * @param {string} [options.cancelLabel]
    * @param {string} [options.initialValue]
    * @param {boolean} [options.withTranscription]
+   * @param {string} [options.type] field type
    * @returns {Promise<string>}
    */
   async prompt(
     parentId,
     prompt,
-    {advice, okLabel, cancelLabel, initialValue, withTranscription} = {}
+    {advice, okLabel, cancelLabel, initialValue, withTranscription, type} = {}
   ) {
     const dialogId = await this.openDialog(
       {
@@ -678,6 +679,7 @@ class MagicNavigation extends Elf {
           cancelLabel,
           initialValue,
           withTranscription,
+          type,
         },
       },
       parentId
