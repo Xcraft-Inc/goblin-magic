@@ -341,7 +341,7 @@ class MagicInputNC extends Widget {
       Component = EditableDiv;
     }
 
-    if (this.props.emojiPicker) {
+    if (this.props.emojiPicker && !this.props.disabled) {
       return (
         <>
           <div className={this.styles.classNames.withEmoji + ' ' + className}>
