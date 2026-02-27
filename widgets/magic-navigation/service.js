@@ -1334,7 +1334,7 @@ class MagicNavigation extends Elf {
    * @param {id} windowId
    * @param {id} dialogId
    */
-  _removeDialog(windowId, dialogId) {
+  async _removeDialog(windowId, dialogId) {
     this.logic._removeDialog(windowId, dialogId);
   }
 
