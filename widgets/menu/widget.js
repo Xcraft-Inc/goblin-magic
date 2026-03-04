@@ -66,9 +66,11 @@ class MenuItem extends Widget {
             onClick={(event) => this.handleClick(event, menu)}
           >
             {children}
-            <div className={this.styles.classNames.menuItemRight}>
-              {rightIcon}
-            </div>
+            {rightIcon !== null && (
+              <div className={this.styles.classNames.menuItemRight}>
+                {rightIcon}
+              </div>
+            )}
           </button>
         )}
       </MenuContext.Consumer>
