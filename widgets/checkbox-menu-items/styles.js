@@ -13,16 +13,9 @@ export default function styles() {
     margin: 0,
   };
 
-  const buttons = {
-    display: 'flex',
-    flexDirection: 'row',
-    padding: '1px',
-  };
-
   return {
     items,
     item,
     hr,
-    buttons,
   };
 }

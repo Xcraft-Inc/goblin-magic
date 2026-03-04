@@ -98,7 +98,7 @@ class CheckboxMenuItemsNC extends Widget {
           {renderedChildren}
         </div>
         <Menu.Hr className={this.styles.classNames.hr} />
-        <div className={this.styles.classNames.buttons}>
+        <Menu.Row>
           <MagicButton simple onPointerUp={this.all}>
             <Icon path={mdiCheckboxMarked} size="1.2em" />
             Tout
@@ -111,7 +111,7 @@ class CheckboxMenuItemsNC extends Widget {
             <Icon path={mdiCheckboxIntermediateVariant} size="1.2em" />
             Inverser
           </MagicButton>
-        </div>
+        </Menu.Row>
       </>
     );
   }
