@@ -11,7 +11,7 @@ export default function styles() {
     'border':
       '1px solid color-mix(in srgb, var(--text-color), transparent 50%)',
     'borderRadius': '5px',
-    'padding': '6px 8px',
+    'padding': '4px 8px',
     'color': 'inherit',
     'display': 'inline-flex',
     'flexDirection': 'row',
