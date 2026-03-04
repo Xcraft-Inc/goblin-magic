@@ -157,6 +157,12 @@ export default function styles() {
     alignSelf: 'center',
   };
 
+  const menuRow = {
+    display: 'flex',
+    flexDirection: 'row',
+    padding: '1px',
+  };
+
   return {
     submenu,
     menuItem,
@@ -167,6 +173,7 @@ export default function styles() {
     menuPosition,
     menuContent,
     menuHr,
+    menuRow,
   };
 }
 

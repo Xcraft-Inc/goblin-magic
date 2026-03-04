@@ -188,6 +188,25 @@ class MenuHr extends Widget {
   }
 }
 
+class MenuRow extends Widget {
+  constructor() {
+    super(...arguments);
+    this.styles = styles;
+  }
+
+  render() {
+    const {className = '', children, ...props} = this.props;
+    return (
+      <div
+        {...props}
+        className={this.styles.classNames.menuRow + ' ' + className}
+      >
+        {children}
+      </div>
+    );
+  }
+}
+
 class MenuButton extends Widget {
   constructor() {
     super(...arguments);
@@ -658,5 +677,6 @@ export default class Menu extends Widget {
   static Div = MenuDiv;
   static Submenu = Submenu;
   static Hr = MenuHr;
+  static Row = MenuRow;
   static Button = MenuButton;
 }
