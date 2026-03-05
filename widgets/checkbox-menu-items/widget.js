@@ -81,7 +81,7 @@ class CheckboxMenuItemsNC extends Widget {
   }
 
   render() {
-    const {values, checkedValues, renderValue, children} = this.props;
+    const {values, checkedValues, renderValue, hr, children} = this.props;
     this.values = values ? [...values] : [];
     const renderedChildren = React.Children.map(children, (child) => {
       if (React.isValidElement(child) && child.type === 'option') {
@@ -97,7 +97,7 @@ class CheckboxMenuItemsNC extends Widget {
           {values?.map((value) => this.renderItem(value, renderValue(value)))}
           {renderedChildren}
         </div>
-        <Menu.Hr className={this.styles.classNames.hr} />
+        {hr !== false && <Menu.Hr className={this.styles.classNames.hr} />}
         <Menu.Row>
           <MagicButton simple onPointerUp={this.all}>
             <Icon path={mdiCheckboxMarked} size="1.2em" />
