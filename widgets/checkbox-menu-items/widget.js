@@ -117,6 +117,8 @@ class CheckboxMenuItemsNC extends Widget {
   }
 }
 
-const CheckboxMenuItems = withC(CheckboxMenuItemsNC);
+const CheckboxMenuItems = withC(CheckboxMenuItemsNC, {
+  checkedValues: 'onChange',
+});
 
 export default CheckboxMenuItems;
