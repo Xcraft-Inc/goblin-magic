@@ -6,6 +6,7 @@ import {faBars, faChevronRight} from '@fortawesome/free-solid-svg-icons';
 import MagicButton from 'goblin-magic/widgets/magic-button/widget.js';
 import WithComputedSize from '../with-computed-size/widget.js';
 import MenuDialog from '../menu-dialog/widget.js';
+import withC from 'goblin-laboratory/widgets/connect-helpers/with-c.js';
 
 const MenuContext = React.createContext();
 const MenuStateContext = React.createContext();
@@ -55,7 +56,7 @@ class MenuItem extends Widget {
   }
 
   render() {
-    const {className = '', rightIcon, children, ...props} = this.props;
+    const {className = '', rightIcon, enabled, children, ...props} = this.props;
     return (
       <MenuContext.Consumer>
         {(menu) => (
@@ -64,6 +65,7 @@ class MenuItem extends Widget {
             className={this.styles.classNames.menuItem + ' ' + className}
             onPointerUp={(event) => this.handlePointerUp(event, menu)}
             onClick={(event) => this.handleClick(event, menu)}
+            data-enabled={enabled}
           >
             {children}
             {rightIcon !== null && (
@@ -672,7 +674,7 @@ export default class Menu extends Widget {
 
   static Context = MenuContext;
   static Content = MenuContent;
-  static Item = MenuItem;
+  static Item = withC(MenuItem);
   static Title = MenuTitle;
   static Div = MenuDiv;
   static Submenu = Submenu;

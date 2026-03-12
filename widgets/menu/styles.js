@@ -34,6 +34,13 @@ export default function styles() {
       marginRight: '6px',
       minWidth: '18px',
     },
+
+    '&[data-enabled=true]:not(:hover)': {
+      backgroundColor: 'rgba(255,177,60,0.4)',
+      border: '1px solid rgba(255,153,0,0.5)',
+      boxShadow: '0px 0px 3px rgba(255,153,0,0.7)',
+      padding: '3px 7px',
+    },
   };
 
   const menuItemRight = {
