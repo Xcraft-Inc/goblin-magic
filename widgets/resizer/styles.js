@@ -9,9 +9,8 @@ export default function styles(theme, props) {
 
   const button = {
     position: 'absolute',
-    padding: '4px',
-    backgroundColor: '#f0f0f0',
-    borderRadius: '4px',
+    color: 'var(--text-color)',
+    padding: '2px',
   };
 
   switch (position) {
@@ -19,16 +18,19 @@ export default function styles(theme, props) {
       button.top = 0;
       button.left = 0;
       button.cursor = 'nwse-resize';
+      button.transform = 'rotate(180deg)';
       break;
     case 'topRight':
       button.top = 0;
       button.right = 0;
       button.cursor = 'nesw-resize';
+      button.transform = 'rotate(-90deg)';
       break;
     case 'bottomLeft':
       button.bottom = 0;
       button.left = 0;
       button.cursor = 'nesw-resize';
+      button.transform = 'rotate(90deg)';
       break;
     default:
     case 'bottomRight':

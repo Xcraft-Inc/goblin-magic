@@ -1,6 +1,8 @@
 import * as styles from './styles.js';
 import React from 'react';
 import Widget from 'goblin-laboratory/widgets/widget';
+import Icon from '@mdi/react';
+import {mdiResizeBottomRight} from '@mdi/js';
 
 class Resizer extends Widget {
   constructor() {
@@ -42,12 +44,14 @@ class Resizer extends Widget {
 
   renderButton() {
     return (
-      <div
+      <Icon
         className={this.styles.classNames.button}
         onPointerDown={this.onDragDown}
         onPointerMove={this.onDragMove}
         onPointerUp={this.onDragUp}
-      ></div>
+        path={mdiResizeBottomRight}
+        size={1}
+      />
     );
   }
 
