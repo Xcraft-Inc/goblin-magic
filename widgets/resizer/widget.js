@@ -6,12 +6,10 @@ class Resizer extends Widget {
   constructor() {
     super(...arguments);
     this.styles = styles;
+    const {width = 800, height = 600} = this.props;
     this.state = {
       isDragging: false,
-      size: {
-        width: 800,
-        height: 600,
-      },
+      size: {width, height},
     };
   }
 
@@ -25,13 +23,16 @@ class Resizer extends Widget {
   };
 
   onDragMove = (e) => {
-    if (this.state.isDragging) {
-      const deltaX = this.initialPositionX - e.clientX;
-      const deltaY = this.initialPositionY - e.clientY;
-      const width = Math.max(this.initialWidth + deltaX, 400);
-      const height = Math.max(this.initialHeight + deltaY, 300);
-      this.setState({size: {width, height}});
+    if (!this.state.isDragging) {
+      return;
     }
+
+    const {minWidth = 0, minHeight = 0} = this.props;
+    const deltaX = this.initialPositionX - e.clientX;
+    const deltaY = this.initialPositionY - e.clientY;
+    const width = Math.max(this.initialWidth + deltaX, minWidth);
+    const height = Math.max(this.initialHeight + deltaY, minHeight);
+    this.setState({size: {width, height}});
   };
 
   onDragUp = (e) => {
