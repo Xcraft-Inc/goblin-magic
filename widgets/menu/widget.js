@@ -610,6 +610,7 @@ export default class Menu extends Widget {
    * @param {MouseEvent} event
    */
   open(event) {
+    this.props.onOpen?.();
     const rect = event.currentTarget.getBoundingClientRect();
     const {top, right, bottom, left} = rect;
     this.setState({
@@ -641,6 +642,7 @@ export default class Menu extends Widget {
    */
   handleContextMenu(event) {
     event.preventDefault();
+    this.props.onOpen?.();
     this.setState({
       open: true,
       left: event.clientX,
