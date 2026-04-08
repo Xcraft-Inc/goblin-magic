@@ -232,8 +232,11 @@ class MenuButton extends Widget {
    */
   handleClick = (event, menu) => {
     // The click event is called when the space key is pressed
-    menu.open(event);
-    event.stopPropagation();
+    if (event.detail === 0) {
+      // event.detail is 0 for keyboard and 1 for pointer
+      menu.open(event);
+      event.stopPropagation();
+    }
   };
 
   /**
