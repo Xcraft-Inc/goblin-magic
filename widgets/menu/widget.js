@@ -673,6 +673,7 @@ export default class Menu extends Widget {
   }
 
   static Context = MenuContext;
+  static StateContext = MenuStateContext;
   static Content = MenuContent;
   static Item = withC(MenuItem);
   static Title = MenuTitle;
