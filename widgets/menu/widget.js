@@ -528,6 +528,7 @@ class MenuContent extends Widget {
       children,
       offsetX,
       offsetY,
+      simple = false,
       portal = modal,
       addTabIndex = true,
       ...props
@@ -558,7 +559,9 @@ class MenuContent extends Widget {
                   <div
                     {...props}
                     className={
-                      this.styles.classNames.menuContent + ' ' + className
+                      (simple ? '' : this.styles.classNames.menuContent) +
+                      ' ' +
+                      className
                     }
                   >
                     {addTabIndex && <div tabIndex={0} />}
