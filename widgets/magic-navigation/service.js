@@ -12,6 +12,8 @@ const {
 const locks = require('xcraft-core-utils/lib/locks.js');
 const isEqual = require('lodash/isEqual.js');
 
+/** @import {Modifiers} from '../get-modifiers/get-modifiers.js' */
+
 /**
  * @typedef {`${string}@${string}`} DesktopId
  */
@@ -85,14 +87,6 @@ class ViewState extends Sculpt(ViewStateShape) {}
 /**
  * @template {ViewParam} [T=any]
  * @typedef {T extends string ? GoblinView<T> : T extends ElfClass ? ElfView<T> : never} View
- */
-
-/**
- * @typedef {object} Modifiers
- * @property {boolean} shiftKey
- * @property {boolean} ctrlKey
- * @property {boolean} altKey
- * @property {boolean} metaKey
  */
 
 class MagicNavigationShape {

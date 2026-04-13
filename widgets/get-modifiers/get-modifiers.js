@@ -15,6 +15,19 @@ export function getPlatform(ua) {
   return null;
 }
 
+/**
+ * @typedef {{
+ *   shiftKey?: boolean,
+ *   ctrlKey?: boolean,
+ *   altKey?: boolean,
+ *   metaKey?: boolean,
+ * }} Modifiers
+ */
+
+/**
+ * @param {KeyboardEvent | MouseEvent | TouchEvent} event
+ * @returns {Modifiers}
+ */
 export default function getModifiers(event) {
   const platform = getPlatform(navigator.userAgent);
   if (platform === 'macos') {
