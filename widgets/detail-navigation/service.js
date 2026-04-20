@@ -205,6 +205,7 @@ class DetailNavigation extends Elf {
     if (oldServiceId) {
       await this.kill(oldServiceId, this.id, await this.winDesktopId());
     }
+    this.emit('closed', {detailId: this.state.detailId});
   }
 
   /**
