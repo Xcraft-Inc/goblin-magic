@@ -43,6 +43,7 @@ class MainDetailNC extends Widget {
       detailServiceId,
       detailWidgets,
       emptyDetail,
+      detailProps = {},
     } = this.props;
     if (!detailId) {
       return emptyDetail || <div></div>;
@@ -80,6 +81,7 @@ class MainDetailNC extends Widget {
               </MagicButton>
             </div>
           }
+          {...detailProps}
         />
       </WithModel>
     );
@@ -93,6 +95,7 @@ class MainDetailNC extends Widget {
       detailServiceId,
       detailWidgets,
       className = '',
+      detailProps = {},
       ...props
     } = this.props;
     return (
