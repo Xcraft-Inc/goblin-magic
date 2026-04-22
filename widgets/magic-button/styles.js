@@ -124,6 +124,11 @@ export default function styles() {
       },
     },
 
+    '& > span:only-child > svg[role=presentation]': {
+      // mdi icon case
+      margin: '-3px',
+    },
+
     '&:disabled': {
       'opacity': '0.4',
       '&:hover': {
