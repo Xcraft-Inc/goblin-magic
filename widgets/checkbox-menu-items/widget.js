@@ -25,7 +25,12 @@ class CheckboxMenuItemsNC extends Widget {
     } else if (checkedValues.includes(value)) {
       this.props.onChange([...checkedValues].filter((v) => v !== value));
     } else {
-      this.props.onChange([...checkedValues, value]);
+      const newValues = [...checkedValues, value];
+      if (this.values.every((value) => newValues.includes(value))) {
+        this.all();
+      } else {
+        this.props.onChange(newValues);
+      }
     }
   };
 
