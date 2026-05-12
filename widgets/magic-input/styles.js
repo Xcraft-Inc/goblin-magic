@@ -6,12 +6,12 @@ export default function styles() {
       'display': 'flex',
       'flexDirection': 'row',
       'alignItems': 'baseline',
+      'paddingRight': 0,
       ':focus-within': {
         borderColor: 'color-mix(in srgb, var(--text-color), transparent 60%)',
       },
       ':hover': {
         '& .pickerButton': {
-          'display': 'block',
           'opacity': '20%',
           ':hover': {
             color: 'orange',
@@ -22,10 +22,14 @@ export default function styles() {
         },
       },
       '& .pickerButton': {
-        'display': 'none',
-        'marginLeft': '-24px',
+        'opacity': 0,
+        'alignSelf': 'stretch',
+        'padding': '0 5px',
+        'display': 'flex',
+        'flexDirection': 'row',
+        'alignItems': 'center',
         '& > svg': {
-          margin: '-5px',
+          margin: '-5px 0',
         },
       },
       '& > .input': {
