@@ -32,6 +32,11 @@ class MainDetailNC extends Widget {
   };
 
   openDetailInNewTab = (event) => {
+    if (this.props.onOpenDetailInNewTab) {
+      const {detailId} = this.props;
+      this.props.onOpenDetailInNewTab(detailId, event);
+      return;
+    }
     const modifiers = getModifiers(event);
     this.doFor(this.props.id, 'openDetailInNewTab', {modifiers});
   };
