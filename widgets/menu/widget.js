@@ -531,6 +531,7 @@ class MenuContent extends Widget {
       children,
       offsetX,
       offsetY,
+      observeResize,
       simple = false,
       portal = modal,
       addTabIndex = true,
@@ -551,7 +552,7 @@ class MenuContent extends Widget {
         onKeyDown={this.handleKeyDown}
       >
         {open && (
-          <WithComputedSize>
+          <WithComputedSize observeResize={observeResize}>
             {(ref, toComputeSizeStyle, size) => {
               return (
                 <div

@@ -16,6 +16,36 @@ class WithComputedSize extends Widget {
       mounted: false,
     };
     this.contentRef = React.createRef();
+    this.resizeObserver = new ResizeObserver((entries) => {
+      if (entries.length < 1) {
+        return;
+      }
+      const entry = entries[0];
+      const boxSize = entry.borderBoxSize[0];
+      const width = boxSize.inlineSize;
+      const height = boxSize.blockSize;
+      const newSize = {width, height};
+
+      let update = false;
+      if (
+        this.props.observeResize !== 'height' &&
+        width !== 0 &&
+        width !== this.state.size.width
+      ) {
+        update = true;
+      }
+      if (
+        this.props.observeResize !== 'width' &&
+        height !== 0 &&
+        height !== this.state.size.height
+      ) {
+        update = true;
+      }
+
+      if (update) {
+        this.setState({size: newSize});
+      }
+    });
   }
 
   componentDidMount() {
@@ -33,6 +63,11 @@ class WithComputedSize extends Widget {
           `Ref not available in <WithComputedSize>. Unable to render its content.`
         );
       }
+
+      if (this.props.observeResize) {
+        this.resizeObserver.observe(element);
+      }
+
       const {width, height} = element.getBoundingClientRect();
       this.setState({
         size: {width, height},
