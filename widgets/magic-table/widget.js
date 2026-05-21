@@ -464,6 +464,7 @@ let MagicTable = class extends Widget {
 
     const hasClick = selectable || onRowClick;
     const sortable = columns.some((col) => col.sortable);
+    const showHeader = columns.some((col) => col.title);
 
     const rows =
       additionalRows && additionalRows.length > 0
@@ -482,62 +483,64 @@ let MagicTable = class extends Widget {
         sortOrder={this.props.sortOrder}
         sortCustom={this.props.sortCustom}
       >
-        <div className={this.styles.classNames.tableHeader}>
-          {columns.map((col, index) => {
-            let sort = null;
-            const useMenu = col.autoFilter;
-            const isSorted =
-              this.props.sortIndex === index && this.props.sortOrder !== '-';
-            let sortIcon = null;
-            if (isSorted) {
-              if (this.props.sortOrder === 'asc') {
-                sortIcon = mdiChevronDown;
-              } else {
-                sortIcon = mdiChevronUp;
+        {showHeader && (
+          <div className={this.styles.classNames.tableHeader}>
+            {columns.map((col, index) => {
+              let sort = null;
+              const useMenu = col.autoFilter;
+              const isSorted =
+                this.props.sortIndex === index && this.props.sortOrder !== '-';
+              let sortIcon = null;
+              if (isSorted) {
+                if (this.props.sortOrder === 'asc') {
+                  sortIcon = mdiChevronDown;
+                } else {
+                  sortIcon = mdiChevronUp;
+                }
               }
-            }
-            if (col.sortable) {
-              sort = () => {
-                if (useMenu) {
+              if (col.sortable) {
+                sort = () => {
+                  if (useMenu) {
+                    this.dispatch({
+                      type: 'TOGGLE_MENU',
+                      sortIndex: index,
+                      sortType: col.type,
+                      sortCustom: col.sortCustom,
+                    });
+                    return;
+                  }
                   this.dispatch({
-                    type: 'TOGGLE_MENU',
+                    type: 'SORT_COLUMN',
                     sortIndex: index,
                     sortType: col.type,
                     sortCustom: col.sortCustom,
                   });
-                  return;
-                }
-                this.dispatch({
-                  type: 'SORT_COLUMN',
-                  sortIndex: index,
-                  sortType: col.type,
-                  sortCustom: col.sortCustom,
-                });
-              };
-            }
+                };
+              }
 
-            return (
-              <div
-                key={index}
-                onClick={sort}
-                className={col.sortable ? 'sortable' : ''}
-                title={col.sortable ? 'Cliquer pour changer le tri' : null}
-              >
-                {useMenu ? (
-                  <div>
-                    {isSorted && !this.props.showMenu ? (
-                      <Icon path={sortIcon} size="1em" />
-                    ) : null}
-                    <Icon path={mdiMenuDown} size="1.5em" />
-                  </div>
-                ) : isSorted ? (
-                  <Icon className="icon" path={sortIcon} size="1em" />
-                ) : null}
-                <span className="text">{col.title}</span>
-              </div>
-            );
-          })}
-        </div>
+              return (
+                <div
+                  key={index}
+                  onClick={sort}
+                  className={col.sortable ? 'sortable' : ''}
+                  title={col.sortable ? 'Cliquer pour changer le tri' : null}
+                >
+                  {useMenu ? (
+                    <div>
+                      {isSorted && !this.props.showMenu ? (
+                        <Icon path={sortIcon} size="1em" />
+                      ) : null}
+                      <Icon path={mdiMenuDown} size="1.5em" />
+                    </div>
+                  ) : isSorted ? (
+                    <Icon className="icon" path={sortIcon} size="1em" />
+                  ) : null}
+                  <span className="text">{col.title}</span>
+                </div>
+              );
+            })}
+          </div>
+        )}
         {this.props.showMenu ? (
           <div className={this.styles.classNames.tableOptions}>
             {columns.map((col, index) => {
