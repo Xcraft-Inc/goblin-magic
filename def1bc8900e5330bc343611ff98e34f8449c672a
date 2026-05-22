@@ -1,0 +1,9 @@
+[
+  {
+    "SourceBranch": "wip/ms@win-drop-outside",
+    "TargetBranch": "master",
+    "CreateMergeRequest": false,
+    "CreatedAt": "2026-05-22T08:53:15.8929866+02:00",
+    "Author": "Mathieu Schroeter"
+  }
+]
