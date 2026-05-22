@@ -235,6 +235,10 @@ let MagicNavigationTabs = class extends Widget {
     });
   };
 
+  moveOutside = (tabId) => {
+    this.doFor('magicNavigation@main', 'moveTabToNewWindow', {tabId});
+  };
+
   handleAuxClick = (event) => {
     if (event.button === 1) {
       // Middle click
@@ -251,6 +255,7 @@ let MagicNavigationTabs = class extends Widget {
         currentTab={currentTabId}
         onTabClick={this.setTab}
         onTabMove={this.moveTab}
+        onDropOutside={this.moveOutside}
         tabIndex="0"
         onKeyDown={this.handleKeyDown}
       >

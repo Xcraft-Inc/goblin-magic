@@ -60,7 +60,24 @@ class TabLayoutTabs extends Widget {
   /**
    * @param {DragEvent} event
    */
-  handleDragEnd = (event) => {};
+  handleDragEnd = (event) => {
+    if (event.dataTransfer.dropEffect !== 'none') {
+      return;
+    }
+
+    const {screenX, screenY} = event;
+
+    const isOutside =
+      screenX < window.screenX ||
+      screenX > window.screenX + window.outerWidth ||
+      screenY < window.screenY ||
+      screenY > window.screenY + window.outerHeight;
+
+    if (isOutside) {
+      const movedTabId = this.getMovedTabId(event);
+      this.props.onDropOutside?.(movedTabId, {screenX, screenY});
+    }
+  };
 
   addDebugV(x, y, color, duration = 5) {
     const div = document.createElement('div');
@@ -336,6 +353,7 @@ class TabLayoutTabs extends Widget {
       onTabClick,
       onTabDrop,
       onTabMove,
+      onDropOutside,
       dragGroup,
       children,
       ...props
