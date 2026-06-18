@@ -92,6 +92,14 @@ export default function styles() {
       width: '100%',
       height: '100%',
     },
+
+    ':not(:modal)': {
+      'zIndex': 1,
+      'pointerEvents': 'none',
+      '& > *': {
+        pointerEvents: 'all',
+      },
+    },
   };
 
   const menuPosition = {

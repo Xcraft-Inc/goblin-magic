@@ -234,7 +234,7 @@ class MenuButton extends Widget {
     // The click event is called when the space key is pressed
     if (event.detail === 0) {
       // event.detail is 0 for keyboard and 1 for pointer
-      menu.open(event);
+      menu.toggle(event);
       event.stopPropagation();
     }
   };
@@ -250,7 +250,7 @@ class MenuButton extends Widget {
     //   capture: true,
     //   once: true,
     // });
-    menu.open(event);
+    menu.toggle(event);
   };
 
   render() {
@@ -533,7 +533,7 @@ class MenuContent extends Widget {
       offsetY,
       observeResize,
       simple = false,
-      portal = modal,
+      portal = true,
       addTabIndex = true,
       ...props
     } = this.props;

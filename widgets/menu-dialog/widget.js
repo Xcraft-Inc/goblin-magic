@@ -36,14 +36,15 @@ export default class MenuDialog extends Widget {
   };
 
   render() {
-    const {onCancel, ...props} = this.props;
+    const {onCancel, modal = true, ...props} = this.props;
     return (
       <Dialog
-        closedby="any"
+        closedby={modal ? 'any' : 'closerequest'}
         // Even with closedby="any", the dialog is not closed by clicking on the backdrop.
         // So we add custom pointerDown and pointerUp handlers.
         {...props}
         ref={this.dialog}
+        modal={modal}
         onPointerDown={this.handlePointerDown}
         onPointerUp={this.handlePointerUp}
       />
