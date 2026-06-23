@@ -45,8 +45,21 @@ export default class Popover extends Widget {
   }
 
   update() {
-    const {open, source} = this.props;
+    const {open, source, style} = this.props;
     if (open) {
+      let options;
+      if (source) {
+        options = {source};
+      }
+      if (style?.positionAnchor) {
+        const anchorName = style?.positionAnchor;
+        const source = document.querySelector(
+          `[data-anchor-name="${anchorName}"`
+        );
+        if (source) {
+          options = {source};
+        }
+      }
       this.popover.current?.showPopover(source ? {source} : undefined);
       // Do action only on the latest opened popover
       listenerStack.push('keydown', this.handleKeyDown);

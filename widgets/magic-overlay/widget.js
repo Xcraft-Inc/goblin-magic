@@ -95,12 +95,9 @@ class Overlay extends Widget {
   }
 }
 
-let overlayButtonCount = 0;
-
 class MagicOverlayButton extends Widget {
   constructor() {
     super(...arguments);
-    this.anchorName = `--magic-overlay-button-anchor-${overlayButtonCount++}`;
   }
 
   /**
@@ -109,18 +106,24 @@ class MagicOverlayButton extends Widget {
    */
   handleClick = (event, overlay) => {
     const {action = 'toggle', mode = 'modal-dialog'} = this.props;
-    overlay[action]({anchor: event.currentTarget, mode});
+    overlay[action]({mode});
     event.stopPropagation();
   };
 
   render() {
-    const {Component = MagicButton, ...props} = this.props;
+    const {Component = MagicButton, anchorName, ...props} = this.props;
+    const anchorProps = anchorName
+      ? {
+          'style': {anchorName},
+          'data-anchor-name': anchorName,
+        }
+      : {};
     return (
       <OverlayContext.Consumer>
         {(overlay) => (
           <Component
             onClick={(event) => this.handleClick(event, overlay)}
-            style={{anchorName: this.anchorName}}
+            {...anchorProps}
             {...props}
           >
             {this.props.children}
@@ -181,31 +184,29 @@ class MagicOverlayContent extends Widget {
       <OverlayStateContext.Consumer>
         {(state) => (
           <OverlayContext.Consumer>
-            {(overlay) => {
-              const anchorName = state.anchor?.style.anchorName || undefined;
-              return (
-                <Overlay
-                  {...props}
-                  onPointerDownCapture={(event) =>
-                    this.handlePointerDown(event, overlay)
-                  }
-                  mode={state.mode}
-                  style={{positionAnchor: anchorName, ...style}}
-                  source={state.anchor}
-                  open={state.open}
-                  onToggle={(event) => this.handleToggle(event, overlay)}
-                  className={
-                    this.styles.classNames.magicOverlay + ' ' + className
-                  }
-                />
-              );
-            }}
+            {(overlay) => (
+              <Overlay
+                {...props}
+                onPointerDownCapture={(event) =>
+                  this.handlePointerDown(event, overlay)
+                }
+                mode={state.mode}
+                style={{positionAnchor: overlay.anchorName, ...style}}
+                open={state.open}
+                onToggle={(event) => this.handleToggle(event, overlay)}
+                className={
+                  this.styles.classNames.magicOverlay + ' ' + className
+                }
+              />
+            )}
           </OverlayContext.Consumer>
         )}
       </OverlayStateContext.Consumer>
     );
   }
 }
+
+let overlayCount = 0;
 
 class MagicOverlay extends Widget {
   constructor() {
@@ -214,12 +215,13 @@ class MagicOverlay extends Widget {
     this.state = {
       open: false,
       mode: 'dialog',
-      anchor: null,
     };
+    this.anchorName =
+      this.props.anchorName || `--magic-overlay-anchor-${overlayCount++}`;
   }
 
   /**
-   * @param {{anchor?: HTMLElement, mode?: OverlayMode}} [options]
+   * @param {{mode?: OverlayMode}} [options]
    */
   open = (options = {}) => {
     if (!this.state.open) {
@@ -238,7 +240,7 @@ class MagicOverlay extends Widget {
   };
 
   /**
-   * @param {{anchor?: HTMLElement, mode?: OverlayMode}} [options]
+   * @param {{mode?: OverlayMode}} [options]
    */
   toggle = (options) => {
     if (!this.state.open) {
@@ -259,10 +261,22 @@ class MagicOverlay extends Widget {
 
   render() {
     const {children} = this.props;
+    let isFirstButton = true;
     return (
       <OverlayContext.Provider value={this}>
         <OverlayStateContext.Provider value={this.state}>
-          {children}
+          {React.Children.map(children, (child) => {
+            if (!React.isValidElement(child)) {
+              return child;
+            }
+            if (child.type === MagicOverlayButton && isFirstButton) {
+              isFirstButton = false;
+              return React.cloneElement(child, {
+                anchorName: this.anchorName,
+              });
+            }
+            return child;
+          })}
         </OverlayStateContext.Provider>
       </OverlayContext.Provider>
     );
