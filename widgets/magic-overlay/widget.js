@@ -170,6 +170,7 @@ class MagicOverlayContent extends Widget {
    * @param {MagicOverlay} overlay
    */
   handleToggle(event, overlay) {
+    this.props.onToggle?.(event);
     if (event.newState === 'open') {
       overlay.open();
     } else if (event.newState === 'closed') {
