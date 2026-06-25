@@ -168,7 +168,7 @@ export default function styles() {
   const menuHr = {
     width: 'calc(100% - 12px)',
     opacity: '0.5',
-    margin: '3px 0',
+    margin: '3px auto',
     alignSelf: 'center',
   };
 
