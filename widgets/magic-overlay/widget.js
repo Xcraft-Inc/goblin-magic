@@ -284,6 +284,8 @@ class MagicOverlay extends Widget {
   }
 }
 
+MagicOverlay.Context = OverlayContext;
+MagicOverlay.StateContext = OverlayStateContext;
 MagicOverlay.Content = MagicOverlayContent;
 MagicOverlay.Button = MagicOverlayButton;
 MagicOverlay.CloseButton = MagicOverlayCloseButton;
