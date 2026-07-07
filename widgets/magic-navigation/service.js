@@ -91,6 +91,7 @@ class ViewState extends Sculpt(ViewStateShape) {}
 
 class MagicNavigationShape {
   id = id;
+  windowIds = array(id);
   windows = record(id, WindowShape);
   panels = record(id, PanelShape);
   tabs = record(id, ViewStateShape);
@@ -115,6 +116,7 @@ class MagicNavigationState extends Elf.Sculpt(MagicNavigationShape) {}
 class MagicNavigationLogic extends Elf.Spirit {
   state = new MagicNavigationState({
     id: undefined,
+    windowIds: [],
     windows: {},
     panels: {},
     tabs: {},
@@ -148,6 +150,7 @@ class MagicNavigationLogic extends Elf.Spirit {
       delete state.panels[panelId];
     }
     delete state.windows[windowId];
+    state.windowIds.deleteByValue(windowId);
   }
 
   /**
@@ -175,6 +178,7 @@ class MagicNavigationLogic extends Elf.Spirit {
       dialogIds: [],
       activePanelId: panelId,
     };
+    state.windowIds.push(windowId);
   }
 
   /**
@@ -196,6 +200,7 @@ class MagicNavigationLogic extends Elf.Spirit {
       dialogIds: [],
       activePanelId: panelId,
     };
+    state.windowIds.push(windowId);
   }
 
   /**
