@@ -459,12 +459,25 @@ class MagicNavigation extends Elf {
    * @param {string} id
    * @param {DesktopId} desktopId
    * @param {string} clientSessionId
-   * @param {string} [existingWindowId]
+   * @param {DesktopId} [existingWindowId]
+   * @param {string} [existingLabId]
    * @returns {Promise<this>}
    */
-  async create(id, desktopId, clientSessionId, existingWindowId) {
+  async create(
+    id,
+    desktopId,
+    clientSessionId,
+    existingWindowId,
+    existingLabId
+  ) {
     this.clientSessionId = clientSessionId;
     this.logic.create(id, existingWindowId);
+    if (existingWindowId) {
+      if (!existingLabId) {
+        throw new Error(`Missing existingLabId`);
+      }
+      await this._subscribeWindowClosed(existingWindowId, existingLabId);
+    }
     return this;
   }
 
@@ -478,8 +491,28 @@ class MagicNavigation extends Elf {
   }
 
   /**
-   * @returns {Promise<DesktopId>}
+   * @param {DesktopId} desktopId
+   * @param {string} labId
+   */
+  async _subscribeWindowClosed(desktopId, labId) {
+    const winId = `wm@${labId}`;
+    const navigationId = this.id;
+    const unsub = this.quest.sub.local(
+      `*::${winId}.${this.clientSessionId}.<window-closed>`,
+      function* (err, {msg, resp}) {
+        console.log('Window closed:', desktopId);
+        yield resp.cmd('magicNavigation.handleWindowClosed', {
+          id: navigationId,
+          windowId: desktopId,
+        });
+      }
+    );
+    this.unsubs.set(desktopId, unsub);
+  }
+
+  /**
    * @param {string} [rootWidget]
+   * @returns {Promise<DesktopId>}
    */
   async _newWindow(rootWidget = 'yeti-root') {
     const clientAPI = this.quest.getAPI('client');
@@ -500,23 +533,10 @@ class MagicNavigation extends Elf {
     });
     /** @type {DesktopId} */
     const desktopId = `desktop@${mandate}@${session}`;
-
     const labId = (await this.quest.getState('client')).get(
       `private.labByDesktop.${desktopId}`
     );
-    const winId = `wm@${labId}`;
-    const navigationId = this.id;
-    const unsub = this.quest.sub.local(
-      `*::${winId}.${this.clientSessionId}.<window-closed>`,
-      function* (err, {msg, resp}) {
-        console.log('Window closed:', desktopId);
-        yield resp.cmd('magicNavigation.handleWindowClosed', {
-          id: navigationId,
-          windowId: desktopId,
-        });
-      }
-    );
-    this.unsubs.set(desktopId, unsub);
+    await this._subscribeWindowClosed(desktopId, labId);
     return desktopId;
   }
 
