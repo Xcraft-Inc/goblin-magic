@@ -7,6 +7,7 @@ export default function styles() {
     'width': '21px',
     'height': '21px',
     'margin': '-4px',
+    'cursor': 'pointer',
 
     '& > input': {
       width: 0,

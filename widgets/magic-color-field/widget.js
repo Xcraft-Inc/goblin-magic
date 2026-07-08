@@ -14,11 +14,15 @@ class MagicColorFieldButtonNC extends Widget {
     this.styles = styles;
   }
 
+  handleClick = (event) => {
+    event.currentTarget.querySelector('input').click();
+  };
+
   render() {
     const {value, onChange, disabled, className = '', ...props} = this.props;
 
     return (
-      <MagicButton disabled>
+      <MagicButton onClick={this.handleClick}>
         <label
           {...props}
           className={this.styles.classNames.colorPreview + ' ' + className}
@@ -32,6 +36,7 @@ class MagicColorFieldButtonNC extends Widget {
             value={value || ''}
             onChange={(event) => onChange?.(event.target.value)}
             disabled={disabled}
+            tabIndex={-1}
           />
         </label>
       </MagicButton>
