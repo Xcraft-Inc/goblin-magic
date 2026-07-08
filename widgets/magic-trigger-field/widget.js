@@ -57,7 +57,7 @@ class MagicTriggerFieldNC extends Widget {
   };
 
   render() {
-    const {disabled} = this.props;
+    const {disabled, kind = 'event'} = this.props;
     let value = this.props.value;
     value = value.toJS?.() || value;
     let interval = [];
@@ -107,13 +107,25 @@ class MagicTriggerFieldNC extends Widget {
           {/* <option value="start">{T("du début de l'événement")}</option> */}
           {/* <option value="end">{T("de la fin de l'événement")}</option> */}
           <option value="before-start">
-            {T("avant le début de l'événement")}
+            {kind === 'task'
+              ? T('avant le début de la tâche')
+              : T("avant le début de l'événement")}
           </option>
           <option value="after-start">
-            {T("après le début de l'événement")}
+            {kind === 'task'
+              ? T('après le début de la tâche')
+              : T("après le début de l'événement")}
           </option>
-          <option value="before-end">{T("avant la fin de l'événement")}</option>
-          <option value="after-end">{T("après la fin de l'événement")}</option>
+          <option value="before-end">
+            {kind === 'task'
+              ? T('avant la fin de la tâche')
+              : T("avant la fin de l'événement")}
+          </option>
+          <option value="after-end">
+            {kind === 'task'
+              ? T('après la fin de la tâche')
+              : T("après la fin de l'événement")}
+          </option>
         </MagicSelect>
       </span>
     );
