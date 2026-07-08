@@ -43,7 +43,7 @@ export default function styles() {
       },
 
       '&:disabled': {
-        'opacity': 1,
+        // 'opacity': 1,
         '&:hover': {
           backgroundColor:
             'color-mix(in srgb, var(--button-background-color), transparent 80%)',

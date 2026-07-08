@@ -19,7 +19,7 @@ export default function styles() {
     'justifyContent': 'center',
     'gap': '4px',
 
-    '&:hover': {
+    '&:not(:disabled):hover': {
       // backgroundColor: 'color-mix(in srgb, var(--text-color), transparent 70%)',
       backgroundColor:
         'color-mix(in srgb, var(--button-accent-color), transparent 70%)',
@@ -54,7 +54,7 @@ export default function styles() {
       'backgroundColor': 'rgba(255,177,60,0.5)',
       'border': '1px solid rgb(255,153,0)',
       'boxShadow': '0px 0px 3px rgb(255,153,0)',
-      '&:hover': {
+      '&:not(:disabled):hover': {
         // backgroundColor: 'rgba(255,255,255,0.5)',
         backgroundColor: 'rgba(255,177,60,0.6)',
       },
@@ -130,12 +130,8 @@ export default function styles() {
     },
 
     '&:disabled': {
-      'opacity': '0.4',
-      '&:hover': {
-        backgroundColor:
-          'color-mix(in srgb, var(--button-accent-color), transparent 80%)',
-        cursor: 'unset',
-      },
+      opacity: '0.4',
+      cursor: 'unset',
     },
   };
 
