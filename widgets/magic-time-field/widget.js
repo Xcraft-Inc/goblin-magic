@@ -135,7 +135,7 @@ class MagicTimeFieldNC extends Widget {
           onKeyDown={this.handleKeyDown}
           className={this.styles.classNames.timeField + ' ' + className}
         />
-        <MagicButton disabled>
+        <MagicButton style={{pointerEvents: 'none'}}>
           <Icon path={mdiClockOutline} size={0.8} />
         </MagicButton>
       </InputGroup>
