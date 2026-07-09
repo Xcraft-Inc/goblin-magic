@@ -5,7 +5,7 @@ import T from 'goblin-nabu/widgets/helpers/nabu.js';
 import withC from 'goblin-laboratory/widgets/connect-helpers/with-c.js';
 import MagicSelect from 'goblin-magic/widgets/magic-select/widget.js';
 import MagicNumberField from 'goblin-magic/widgets/magic-number-field/widget.js';
-import {negativeDuration} from 'xcraft-core-converters/lib/calendar.js';
+import {negativeDuration} from 'xcraft-core-converters/lib/duration.js';
 
 const intervalOrder = ['weeks', 'days', 'hours', 'minutes', 'seconds'];
 
