@@ -5,9 +5,11 @@ import T from 'goblin-nabu/widgets/helpers/nabu.js';
 import withC from 'goblin-laboratory/widgets/connect-helpers/with-c.js';
 import MagicSelect from 'goblin-magic/widgets/magic-select/widget.js';
 import MagicNumberField from 'goblin-magic/widgets/magic-number-field/widget.js';
-import {negativeDuration} from 'xcraft-core-converters/lib/duration.js';
-
-const intervalOrder = ['weeks', 'days', 'hours', 'minutes', 'seconds'];
+import {
+  durationEntries,
+  durationSign,
+  negativeDuration,
+} from 'xcraft-core-converters/lib/duration.js';
 
 class MagicTriggerFieldNC extends Widget {
   constructor() {
@@ -60,24 +62,19 @@ class MagicTriggerFieldNC extends Widget {
     const {disabled, kind = 'event'} = this.props;
     let value = this.props.value;
     value = value.toJS?.() || value;
-    let interval = [];
+    let intervalEntries = [];
     if (value.interval) {
-      interval = Object.entries(value.interval)
-        .filter(([name, number]) => typeof number === 'number')
-        .sort(
-          ([name1], [name2]) =>
-            intervalOrder.indexOf(name1) - intervalOrder.indexOf(name2)
-        );
+      intervalEntries = durationEntries(value.interval);
     }
-    if (interval.length === 0) {
-      interval = [['minutes', 0]];
+    if (intervalEntries.length === 0) {
+      intervalEntries = [['minutes', 0]];
     }
-    const isBefore = interval[0][1] <= 0;
+    const isBefore = durationSign(value.interval) <= 0;
     const beforeType = isBefore ? 'before' : 'after';
     const relatedType = `${beforeType}-${value.relatedTo || 'start'}`;
     return (
       <span className={this.styles.classNames.triggerField}>
-        {interval.map(([name, number]) => (
+        {intervalEntries.map(([name, number]) => (
           <span key={name} className="triggerInterval">
             <MagicNumberField
               value={isBefore ? -number : number}
