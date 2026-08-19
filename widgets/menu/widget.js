@@ -212,6 +212,7 @@ class MenuRow extends Widget {
 class MenuButton extends Widget {
   constructor() {
     super(...arguments);
+    this.styles = styles;
     this.stopPropagation = this.stopPropagation.bind(this);
   }
 
@@ -254,7 +255,7 @@ class MenuButton extends Widget {
   };
 
   render() {
-    const {Component = MagicButton, ...props} = this.props;
+    const {Component = MagicButton, className, ...props} = this.props;
     return (
       <MenuContext.Consumer>
         {(menu) => (
@@ -262,6 +263,11 @@ class MenuButton extends Widget {
             onPointerDown={(event) => this.handlePointerDown(event, menu)}
             onPointerUp={this.stopPropagation}
             onClick={(event) => this.handleClick(event, menu)}
+            className={
+              Component === MagicButton
+                ? this.styles.classNames.defaultMenuButton + ' ' + className
+                : className
+            }
             {...props}
           >
             {this.props.children || <FontAwesomeIcon icon={faBars} />}

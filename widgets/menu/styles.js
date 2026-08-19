@@ -1,4 +1,10 @@
 export default function styles() {
+  const defaultMenuButton = {
+    '&&:enabled:active': {
+      transform: 'none',
+    },
+  };
+
   const menuItem = {
     'width': '100%',
     'backgroundColor': 'transparent',
@@ -179,6 +185,7 @@ export default function styles() {
   };
 
   return {
+    defaultMenuButton,
     submenu,
     menuItem,
     menuItemRight,
