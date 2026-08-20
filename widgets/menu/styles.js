@@ -155,11 +155,15 @@ export default function styles() {
 
     '& .content': {
       ...menuContent,
-      'display': 'none',
       'position': 'absolute',
       'left': '100%',
       'top': 0,
       'width': 'max-content',
+
+      'visibility': 'hidden',
+      'transitionProperty': 'visibility',
+      'transitionDuration': '0s',
+      'transitionDelay': '0.2s',
 
       '&[data-position~="top"]': {
         top: 'unset',
@@ -167,7 +171,8 @@ export default function styles() {
       },
     },
     ':hover .content': {
-      display: 'flex',
+      visibility: 'visible',
+      transitionDelay: '0.2s',
     },
   };
 
