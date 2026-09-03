@@ -45,6 +45,7 @@ class MagicButtonNC extends Widget {
       underlined,
       big,
       simple,
+      transform,
       spinner,
       onPointerDown,
       className = '',
@@ -63,6 +64,7 @@ class MagicButtonNC extends Widget {
         data-underlined={underlined}
         data-big={big}
         data-simple={simple}
+        data-transform={transform}
         data-len1={len1}
         onPointerDown={onPointerDown && this.handlePointerDown}
         title={title}

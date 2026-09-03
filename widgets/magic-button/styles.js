@@ -28,17 +28,19 @@ export default function styles() {
     },
 
     '&:enabled:active': {
-      '&::before': {
-        content: "''",
-        position: 'absolute',
-        width: '100%',
-        height: '100%',
-        transform: 'scale(1.1)',
-        border: '2px solid transparent',
-        borderRadius: '5px',
-        // outline: '1px solid red',
+      '&:not([data-transform=false])': {
+        '&::before': {
+          content: "''",
+          position: 'absolute',
+          width: '100%',
+          height: '100%',
+          transform: 'scale(1.1)',
+          border: '2px solid transparent',
+          borderRadius: '5px',
+          // outline: '1px solid red',
+        },
+        'transform': 'scale(0.9)',
       },
-      'transform': 'scale(0.9)',
       // paddingTop: '8px',
       'opacity': '0.85',
     },
