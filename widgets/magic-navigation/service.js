@@ -1494,6 +1494,25 @@ class MagicNavigation extends Elf {
     }
   }
 
+  /**
+   * @param {id} viewOrServiceId
+   * @param {DesktopId} desktopId
+   */
+  async moveDialogToTab(viewOrServiceId, desktopId) {
+    const windowId = desktopId;
+    const dialogId = await this.getViewId(viewOrServiceId);
+    const currentView = this.views.get(dialogId);
+    if (!currentView) {
+      throw new Error(`Missing view '${dialogId}'`);
+    }
+    const serviceId = this.state.tabs[dialogId].serviceId;
+    const newView = {...currentView, serviceId};
+    await this.openNewTab(newView, desktopId);
+    await this._removeDialog(windowId, dialogId);
+    this.views.delete(dialogId);
+    this.quest.evt(`${dialogId}-closed`);
+  }
+
   delete() {
     for (const unsub of this.unsubs.values()) {
       unsub();
