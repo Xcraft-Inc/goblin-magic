@@ -1,6 +1,6 @@
 export default function styles() {
   const defaultMenuButton = {
-    '&&:enabled:active': {
+    '&&&:enabled:active': {
       transform: 'none',
     },
   };
