@@ -1,8 +1,8 @@
-# 📘 Documentation du module goblin-magic
+# 📘 goblin-magic
 
 ## Aperçu
 
-Le module **goblin-magic** est une bibliothèque de composants d'interface utilisateur moderne pour le framework Xcraft. Il fournit un ensemble complet de widgets React stylisés avec un design "glassmorphism" et des fonctionnalités avancées de navigation multi-onglets et multi-fenêtres. Le module inclut également un acteur de navigation sophistiqué qui gère l'orchestration des vues, des onglets et des dialogues dans l'écosystème Xcraft.
+Le module **goblin-magic** est une bibliothèque de composants d'interface utilisateur pour le framework Xcraft. Il fournit un système complet de widgets React au design « glassmorphism » (boutons, champs de saisie, calendriers, tableaux, menus, dialogues, etc.) ainsi qu'un ensemble d'acteurs **Elf** dédiés à l'orchestration de la navigation applicative : gestion multi-fenêtres, multi-panneaux, multi-onglets, boîtes de dialogue, et navigation « maître-détail ». Le module inclut également deux acteurs utilitaires (`WidgetWithNav` et `WidgetWithQuest`) qui simplifient l'intégration des widgets React avec le bus de quêtes Xcraft.
 
 ## Sommaire
 
@@ -11,58 +11,72 @@ Le module **goblin-magic** est une bibliothèque de composants d'interface utili
 - [Exemples d'utilisation](#exemples-dutilisation)
 - [Interactions avec d'autres modules](#interactions-avec-dautres-modules)
 - [Détails des sources](#détails-des-sources)
+- [Licence](#licence)
 
 ## Structure du module
 
-Le module est organisé autour de deux composants principaux :
+Le module s'articule autour de trois familles d'éléments :
 
-1. **L'acteur MagicNavigation** : Gère la navigation multi-onglets et multi-fenêtres
-2. **Les widgets Magic** : Collection de composants UI modernes et réutilisables
+1. **Les acteurs Elf de navigation**
 
-### Architecture des widgets
+   - [`MagicNavigation`](#widgetsmagic-navigationservicejs) : acteur singleton central qui gère les fenêtres, panneaux, onglets et dialogues de l'application.
+   - [`DetailNavigation`](#widgetsdetail-navigationservicejs) : acteur instanciable qui gère un panneau maître/détail avec historique de navigation.
+   - [`WidgetWithNav`](#widgetswidget-with-navservicejs) et [`WidgetWithQuest`](#widgetswidget-with-questservicejs) : acteurs utilitaires facilitant l'ouverture de dialogues depuis un widget React et l'exécution de quêtes avec attente de résultat.
 
-Les widgets sont organisés en catégories :
+2. **Les widgets React « Magic »** : une collection de composants de base (`MagicButton`, `MagicTextField`, `MagicCheckbox`, `MagicRadio`, `MagicSelect`, etc.), de composants de saisie spécialisés (`MagicDateField`, `MagicTimeField`, `MagicDatetimeField`, `MagicNumberField`, `MagicColorField`, `MagicTriggerField`), de composants de mise en page (`MagicBox`, `MagicDiv`, `MagicBackground`, `InputGroup`) et de composants avancés (`MagicTable`, `MagicOverlay`, `MagicDialog`, `MagicZen`, `MagicNavigation` widget).
 
-- **Composants de base** : MagicButton, MagicTextField, MagicCheckbox, MagicRadio, etc.
-- **Composants de saisie spécialisés** : MagicDateField, MagicTimeField, MagicNumberField, MagicColorField, etc.
-- **Composants de layout** : MagicBox, MagicDiv, MagicBackground, InputGroup, etc.
-- **Composants avancés** : MagicTable, MagicNavigation, MagicDialog, MagicSelect, etc.
-- **Utilitaires** : Menu, Dialog, Splitter, Movable, etc.
+3. **Les utilitaires transverses** : `Menu`, `Dialog`/`CancelableDialog`/`MenuDialog`, `Popover`, `Splitter`, `Movable`, `Resizer`, `ListenerStack`, les helpers de calendrier (`calendar-helpers.js`, `SmallCalendar`, `YearMonth`), les helpers d'éléments DOM (`element-helpers`) et les helpers d'intervalles de temps (`time-interval`).
 
 ## Fonctionnement global
 
-### Système de navigation
+### Le système de navigation principal (`MagicNavigation`)
 
-L'acteur **MagicNavigation** orchestre un système de navigation complexe basé sur :
+L'acteur singleton `magicNavigation@main` orchestre une hiérarchie :
 
-- **Windows** : Fenêtres de l'application (correspondant aux desktops Xcraft)
-- **Panels** : Panneaux contenant des onglets au sein d'une fenêtre
-- **Tabs** : Onglets individuels affichant des vues
-- **Dialogs** : Boîtes de dialogue modales ou non-modales
+```
+Window (desktopId)
+ ├─ Panel(s)
+ │   └─ Tab(s) → View { serviceId | widget, widgetProps }
+ └─ Dialog(s) → View { serviceId | widget, widgetProps, parentViewId }
+```
 
-### Gestion des états
+- Une **fenêtre** (`window`) correspond à un desktop Xcraft (une session client). Elle contient un ou plusieurs **panneaux** et éventuellement des **dialogues**.
+- Un **panneau** (`panel`) contient une liste ordonnée d'**onglets** ainsi qu'un historique des derniers onglets actifs (`lastTabIds`), utilisé pour déterminer quel onglet activer après la fermeture de l'onglet courant.
+- Chaque **onglet** ou **dialogue** référence une **vue** (`ViewState`) : soit un service (acteur Elf ou Goblin) attaché au feed du desktop, soit simplement un widget avec des propriétés statiques.
 
-Chaque vue (onglet ou dialogue) peut avoir :
+L'acteur maintient en mémoire (hors état persisté) une `Map` `views` qui associe l'identifiant de chaque onglet/dialogue à sa définition complète (`View`), ce qui permet de retrouver une vue existante identique (même service, mêmes arguments, mêmes propriétés) via `findExistingView` et d'éviter la duplication d'onglets lors d'une nouvelle ouverture (`activateOrOpenTab`, `highlightOrOpenTab`).
 
-- Un service associé (acteur Elf ou Goblin)
-- Un widget d'affichage
-- Des propriétés spécifiques
-- Un état de mise en évidence
-- Une vue parente (pour la navigation hiérarchique)
+Le comportement d'ouverture d'un onglet dépend des modificateurs clavier (`Ctrl`, `Alt`/`Cmd`) transmis à `openTab` :
+
+- Sans modificateur : active l'onglet existant ou en crée un nouveau (`activateOrOpenTab`).
+- `Ctrl` : met en évidence l'onglet existant sans l'activer, ou l'ouvre en arrière-plan (`highlightOrOpenTab`).
+- `Alt`/`Cmd` : ouvre une nouvelle fenêtre dédiée (`openTabInNewWindow`).
+
+### Cycle de vie d'une fenêtre
+
+Chaque fenêtre correspond à une session client ouverte via l'API `client.openSession`. L'acteur s'abonne à l'événement `<window-closed>` du gestionnaire de fenêtres (`xcraft-core-server`/labs) pour détecter sa fermeture et nettoyer l'état (`handleWindowClosed`), désabonner le listener et supprimer les vues associées de la `Map` `views`.
+
+### Navigation maître-détail (`DetailNavigation`)
+
+`DetailNavigation` est un acteur instanciable qui gère un panneau « détail » affiché à côté d'un widget parent (via `Splitter`), avec :
+
+- Un historique de navigation (`detailHistory`) permettant de revenir en arrière (`backDetail`).
+- L'ouverture du détail dans un nouvel onglet principal (`openNewTab`/`openDetailInNewTab`).
+- Le remplacement du widget parent par le détail courant (`replaceParent`).
+
+Il délègue la résolution du type d'entité et du service Elf correspondant à une table `services` (dictionnaire `type → classe Elf`) fournie à la création.
+
+### Widgets/quêtes (`WidgetWithNav` / `WidgetWithQuest`)
+
+`WidgetWithQuest` est un acteur `Elf.Alone` (singleton) qui permet à un widget React d'invoquer une quête backend et d'en attendre le résultat de façon asynchrone, en stockant temporairement le résultat dans son état (`results[questId]`) et en le nettoyant après lecture. `WidgetWithNav` s'appuie sur `WidgetWithQuest` pour ouvrir des dialogues via `MagicNavigation` depuis un widget et en attendre la fermeture (`openDialogForResult`), tout en gardant la trace des dialogues ouverts par desktop pour pouvoir les fermer automatiquement au démontage du composant ou à la réinitialisation du desktop.
 
 ### Système de style
 
-Les widgets utilisent un système de style cohérent avec :
-
-- Support des thèmes sombre/clair automatique
-- Variables CSS personnalisables (`--text-color`, `--accent-color`, `--field-background-color`, etc.)
-- Effets glassmorphism avec backdrop-filter
-- Animations et transitions fluides
-- Système de couleurs adaptatif avec `color-mix()`
+Les widgets utilisent un système de style cohérent basé sur des variables CSS (`--text-color`, `--accent-color`, `--button-accent-color`, `--field-background-color`) mélangées avec `color-mix()`, un support natif du thème sombre/clair via `@media (prefers-color-scheme)`, ainsi qu'une prise en charge du mode « transparence réduite » (`.prefers-reduced-transparency`). Les effets de flou (`backdrop-filter`) et les ombres portées donnent l'esthétique « glassmorphism » caractéristique du module.
 
 ## Exemples d'utilisation
 
-### Navigation de base
+### Navigation principale : ouvrir un onglet et un dialogue
 
 ```javascript
 const mainNavigation = await new MagicNavigation(this).api(
@@ -72,54 +86,65 @@ const mainNavigation = await new MagicNavigation(this).api(
 // Ouvrir un nouvel onglet avec un acteur Elf
 const tabId = await mainNavigation.openTab(
   {
-    service: MyService, // Classe Elf
+    service: MyService, // classe Elf
     serviceArgs: [param1, param2],
-    widget: 'MyWidget',
-    widgetProps: {title: 'Mon titre'},
   },
   desktopId
 );
 
-// Ouvrir un onglet avec un acteur Goblin
-const tabId = await mainNavigation.openTab(
-  {
-    service: 'myGoblinService',
-    serviceArgs: {param1, param2},
-    widget: 'MyWidget',
-    widgetProps: {title: 'Mon titre'},
-  },
-  desktopId
+// Ouvrir une boîte de confirmation et attendre la réponse
+const confirmed = await mainNavigation.confirm(
+  desktopId,
+  'Voulez-vous vraiment supprimer cet élément ?',
+  {kind: 'yes-no'}
 );
-
-// Ouvrir une boîte de dialogue
-const dialogId = await mainNavigation.openDialog(
-  {
-    widget: 'ConfirmDialog',
-    widgetProps: {
-      prompt: 'Êtes-vous sûr ?',
-      kind: 'yes-no',
-    },
-  },
-  parentId
-);
-
-// Attendre la fermeture et récupérer le résultat
-const result = await mainNavigation.waitClosed(dialogId);
 ```
 
-### Utilisation des widgets
+### Navigation maître-détail
 
 ```javascript
-// Formulaire avec widgets Magic
+const services = {
+  contact: ContactService,
+  invoice: InvoiceService,
+};
+
+const detailNav = await new DetailNavigation(this).create(
+  detailNavigationId,
+  desktopId,
+  parentWorkitemId,
+  services
+);
+
+// Ouvre (ou ferme si déjà ouvert) le détail d'une entité
+await detailNav.open('contact@1234');
+```
+
+### Ouvrir un dialogue depuis un widget React (`WidgetWithNav`)
+
+```javascript
+class MyWidget extends WidgetWithNav {
+  handleEdit = async () => {
+    const result = await this.openDialogForResult(
+      {
+        service: EditDialogService,
+        serviceArgs: [this.props.id],
+      },
+      this.props.id
+    );
+    if (result) {
+      // traiter le résultat...
+    }
+  };
+}
+```
+
+### Formulaire avec les widgets Magic
+
+```javascript
 <MagicBox>
   <MagicLabel>
     Nom :
-    <MagicTextField
-      value={C('.name')}
-      onChange={this.setName}
-      placeholder="Entrez votre nom"
-      emojiPicker
-    />
+    <MagicTextField value={C('.name')} onChange={this.setName} emojiPicker />
   </MagicLabel>
 
   <MagicLabel>
@@ -132,8 +157,12 @@ const result = await mainNavigation.waitClosed(dialogId);
   </MagicLabel>
 
   <MagicLabel>
-    Couleur :
-    <MagicColorField value={C('.color')} onChange={this.setColor} />
+    Rappel :
+    <MagicTriggerField
+      value={C('.reminder')}
+      onChange={this.setReminder}
+      kind="event"
+    />
   </MagicLabel>
 
   <MagicButton onClick={this.save} spinner={this.state.saving}>
@@ -142,299 +171,298 @@ const result = await mainNavigation.waitClosed(dialogId);
 </MagicBox>
 ```
 
-### Tableau avec tri et sélection
-
-```javascript
-<MagicTable
-  data={this.props.items}
-  columns={[
-    {title: 'Nom', id: 'name', sortable: true},
-    {title: 'Date', id: 'date', type: 'date', sortable: true},
-    {
-      title: 'Actions',
-      renderItem: (item) => (
-        <MagicButton onClick={() => this.edit(item)}>Éditer</MagicButton>
-      ),
-    },
-  ]}
-  selectable
-  onSelectionChange={this.handleSelection}
-  onRowClick={this.handleRowClick}
-/>
-```
-
-### Menu contextuel
-
-```javascript
-<Menu>
-  <Menu.Button>
-    <MagicButton>Options</MagicButton>
-  </Menu.Button>
-  <Menu.Content>
-    <Menu.Item onPointerUp={this.handleEdit}>Éditer</Menu.Item>
-    <Menu.Item onPointerUp={this.handleDuplicate}>Dupliquer</Menu.Item>
-    <Menu.Hr />
-    <Menu.Item onPointerUp={this.handleDelete}>Supprimer</Menu.Item>
-  </Menu.Content>
-</Menu>
-```
-
 ## Interactions avec d'autres modules
 
-### Avec xcraft-core-goblin
+- **[xcraft-core-goblin]** : socle des acteurs `Elf` (`Elf.Spirit`, `Elf.Sculpt`, `Elf.Alone`, `Elf.birth`) utilisés par `MagicNavigation`, `DetailNavigation`, `WidgetWithNav` et `WidgetWithQuest`.
+- **[xcraft-core-stones]** : définition des shapes d'état (`string`, `option`, `array`, `record`, `boolean`, `object`).
+- **[xcraft-core-shredder]** : état immuable utilisé dans le reducer de `MagicTable`.
+- **[xcraft-core-utils]** : verrous (`locks.js`) utilisés par `MagicNavigation` pour synchroniser `highlightOrOpenTab`.
+- **[xcraft-core-converters]** : conversion/formatage des dates, heures, nombres et durées pour les champs `MagicDateField`, `MagicTimeField`, `MagicNumberField`, `MagicTriggerField`, `SmallCalendar`, `YearMonth`.
+- **goblin-laboratory** : classe de base `Widget` pour tous les composants React, helpers de connexion (`withC`, `C`, `Widget.connect`, `Widget.connectBackend`), `WithModel`, `ErrorHandler`.
+- **goblin-nabu** : traduction des libellés d'interface via le composant `T`.
+- Le module s'appuie enfin sur le service `client` (fenêtrage) pour ouvrir de nouvelles fenêtres (`openSession`) et sur `xcraft-core-server`/le warehouse Xcraft (`quest.warehouse.graft`) pour déplacer un service d'un feed (fenêtre) à un autre lors du déplacement d'un onglet.
 
-- Utilise `Elf.birth()` pour exposer l'acteur MagicNavigation
-- Intègre le système de quêtes et d'états Xcraft
-- Gère le cycle de vie des services associés aux vues
+## Configuration avancée
 
-### Avec goblin-laboratory
-
-- Hérite de `Widget` pour tous les composants
-- Utilise `withC()` pour la connexion aux états
-- Intègre le système de traduction avec `goblin-nabu`
-
-### Avec xcraft-core-converters
-
-- Utilise les convertisseurs pour les champs de date/heure/nombre
-- Gestion du parsing et formatage des données
-- Support des calendriers et fuseaux horaires
-
-### Avec le système de fenêtrage
-
-- Communique avec le gestionnaire de fenêtres via `client` API
-- Gère les événements de fermeture de fenêtres
-- Synchronise l'état avec les sessions client
+Le module ne possède pas de fichier `config.js` ; il ne définit donc aucune configuration avancée via `xcraft-core-etc`.
 
 ## Détails des sources
 
-### `magicNavigation.js`
+### `magicNavigation.js`, `detailNavigation.js`, `widgetWithNav.js`, `widgetWithQuest.js`
 
-Point d'entrée qui expose l'acteur MagicNavigation sur le bus Xcraft via `Elf.birth()`.
+Ces quatre fichiers, situés à la racine du module, sont les points d'entrée qui exposent respectivement les acteurs `MagicNavigation`, `DetailNavigation`, `WidgetWithNav` et `WidgetWithQuest` sur le bus Xcraft via `Elf.birth(Actor, ActorLogic)`.
 
 ### `widgets/magic-navigation/service.js`
 
+Définit l'acteur singleton `MagicNavigation` (identifiant conventionnel `magicNavigation@main`), pièce maîtresse du module.
+
 #### État et modèle de données
 
-L'acteur utilise plusieurs shapes pour structurer son état :
+- **`MagicNavigationShape`** : état racine, avec `windowIds` (ordre des fenêtres), `windows` (dictionnaire `WindowShape`), `panels` (dictionnaire `PanelShape`) et `tabs` (dictionnaire `ViewStateShape`, qui contient aussi bien les onglets que les dialogues).
+- **`WindowShape`** : `panelIds`, `dialogIds`, `activePanelId`.
+- **`PanelShape`** : `tabIds`, `currentTabId` (optionnel), `lastTabIds` (pile d'historique pour la réactivation après fermeture).
+- **`ViewStateShape`** : `serviceId` (optionnel), `widget` (optionnel, requis si `serviceId` absent), `widgetProps`, `highlighted`, `parentViewId` (pour les dialogues en cascade) et `tabId` (utilisé lors d'une restauration).
 
-- **MagicNavigationShape** : État racine contenant les fenêtres, panneaux et onglets
-- **WindowShape** : Structure d'une fenêtre avec ses panneaux et dialogues
-- **PanelShape** : Structure d'un panneau avec ses onglets et historique
-- **ViewStateShape** : État d'une vue (onglet ou dialogue)
+En complément de l'état persisté, l'acteur maintient en mémoire une `Map<id, View>` (`this.views`) qui conserve la définition complète de chaque vue (service, arguments, widget, vue précédente pour la navigation arrière) — non persistée car elle peut contenir des références non sérialisables (classes Elf).
+
+#### Cycle de vie
+
+- **`create(id, desktopId, clientSessionId, existingWindowId?, existingLabId?)`** — Initialise l'acteur ; si une fenêtre existe déjà (redémarrage), s'y abonne pour détecter sa fermeture.
+- L'acteur ne possède pas de quête `delete` explicite dans le sens instanciable classique, mais une méthode **`delete()`** qui désabonne tous les listeners de fermeture de fenêtres lors de sa destruction.
 
 #### Méthodes publiques
 
-- **`create(id, desktopId, clientSessionId, existingWindowId)`** — Initialise l'acteur de navigation avec une session client et optionnellement une fenêtre existante.
-- **`openTab(view, desktopId, modifiers)`** — Ouvre un onglet selon les modificateurs (Ctrl pour mise en évidence, Alt pour nouvelle fenêtre).
-- **`openDialog(view, parentId, modal, openNew)`** — Ouvre une boîte de dialogue modale ou non-modale.
-- **`activateTab(tabId, keepHistory)`** — Active un onglet spécifique avec gestion optionnelle de l'historique.
-- **`closeTab(tabId, result)`** — Ferme un onglet et émet un événement avec le résultat.
-- **`moveTabToNewWindow(tabId)`** — Déplace un onglet vers une nouvelle fenêtre.
-- **`moveTabToPanel(tabId, nextPanel)`** — Déplace un onglet vers un panneau adjacent.
-- **`duplicateTab(tabId)`** — Duplique un onglet existant.
-- **`confirm(parentId, prompt, options)`** — Affiche une boîte de confirmation et retourne le résultat.
-- **`prompt(parentId, prompt, advice, okLabel, cancelLabel, initialValue)`** — Affiche une boîte de saisie et retourne la valeur.
-- **`alert(parentId, prompt, advice)`** — Affiche une boîte d'alerte.
-- **`replace(viewOrServiceId, view, desktopId, back)`** — Remplace une vue par une autre avec support de navigation arrière.
-- **`back(viewOrServiceId, desktopId)`** — Navigue vers la vue précédente.
-- **`waitClosed(viewOrServiceId)`** — Attend la fermeture d'une vue et retourne son résultat.
+- **`openEmptyWindow(rootWidget = 'yeti-root')`** — Ouvre une nouvelle fenêtre vide (session client) avec un panneau unique sans onglet.
+- **`openTab(view, desktopId, modifiers?)`** — Point d'entrée principal pour ouvrir un onglet ; le comportement dépend des modificateurs clavier (voir [Fonctionnement global](#fonctionnement-global)).
+- **`openNewTab(view, desktopId, panelId?, activateTab = true)`** — Crée un nouvel onglet dans un panneau donné (ou déduit du panneau actif) et instancie le service associé si nécessaire ; émet un événement `${tabId}-opened`.
+- **`openTabInNewWindow(view, desktopId)`** — Ouvre l'onglet dans une toute nouvelle fenêtre.
+- **`activateOrOpenTab(view, desktopId)`** / **`highlightOrOpenTab(view, desktopId, panelId?)`** — Réutilisent une vue existante identique si trouvée (`findExistingView`), sinon en créent une nouvelle.
+- **`activateTab(tabId, keepHistory = false)`** — Active un onglet et met à jour l'historique du panneau.
+- **`highlightTab(tabId)`** — Marque un onglet comme mis en évidence sans l'activer.
+- **`moveTab(tabId, dstPanelId, dstIndex)`**, **`moveTabToPanel(tabId, nextPanel?)`**, **`moveTabToWindow(tabId, dstWindowId)`**, **`moveTabToNewWindow(tabId)`** — Déplacent un onglet entre positions/panneaux/fenêtres, en transférant le service associé vers le nouveau feed via `quest.warehouse.graft` si nécessaire.
+- **`duplicateTab(tabId)`** — Duplique la vue d'un onglet dans le même panneau.
+- **`closeTab(tabId, result?)`**, **`closeCurrentTab(desktopId)`**, **`closeView(desktopId, viewId, result?)`**, **`requestClose(desktopId, viewId, result?)`** — Ferment un onglet ou un dialogue ; `requestClose` interroge d'abord le service via `onCloseRequested` pour permettre l'annulation ; `closeView` ferme récursivement les dialogues enfants (`parentViewId`).
+- **`openDialog(view, parentId, modal = true, openNew = false)`** / **`closeDialog(desktopId, dialogId, result?)`** — Ouvrent/ferment une boîte de dialogue rattachée à une fenêtre ou à une vue parente.
+- **`confirm(parentId, prompt, options?)`**, **`prompt(parentId, prompt, options?)`**, **`alert(parentId, prompt, advice?)`** — Raccourcis de haut niveau au-dessus de `openDialog` + `waitClosed` pour les dialogues standards.
+- **`replace(viewOrServiceId, view, desktopId, back = false)`** / **`back(viewOrServiceId, desktopId)`** — Remplacent le contenu d'une vue tout en conservant la vue précédente pour permettre un retour arrière.
+- **`switchTab(desktopId, reverse?)`**, **`activateTabIndex(desktopId, index)`**, **`backCurrentTab(desktopId)`** — Raccourcis de navigation clavier (Ctrl+Tab, Ctrl+chiffre, Alt+←).
+- **`waitClosed(viewOrServiceId)`** — Attend l'événement `${viewId}-closed` et retourne son résultat ; utilisé par toutes les méthodes de dialogue synchrones.
+- **`moveDialogToTab(viewOrServiceId, desktopId)`** — Convertit un dialogue en onglet.
 
 ### `widgets/magic-navigation/widget.js`
 
-Composant React principal qui rend l'interface de navigation avec support des onglets multiples, panneaux divisibles et dialogues. Gère les raccourcis clavier globaux (Ctrl+W, Ctrl+Tab, Alt+←, etc.) et la navigation au clavier.
+Composant React principal qui rend l'ensemble de l'arborescence de navigation (panneaux, onglets, vues, dialogues) pour une fenêtre donnée. Gère les raccourcis clavier globaux : `Ctrl+W` (fermer l'onglet courant), `Ctrl+O` (ouvrir par identifiant), `Ctrl+Tab`/`Ctrl+Shift+Tab` (changer d'onglet), `Ctrl/Alt+1-9` (activer un onglet par index), `Alt+←`/`Cmd+←` (retour arrière). Le rendu s'appuie sur des sous-composants internes (`MagicNavigationPanels`, `MagicNavigationPanel`, `MagicNavigationTabs`, `MagicNavigationTab`, `MagicNavigationViews`, `MagicNavigationDialogs`) connectés à l'état backend via `C()`/`withC`. Chaque onglet propose, via un menu contextuel, les actions déplacer (panneau gauche/droit, nouvelle fenêtre), mettre en évidence, dupliquer et fermer. `MultiSplitter` répartit récursivement plusieurs panneaux dans des `Splitter` imbriqués.
+
+Exemple d'intégration minimal :
+
+```javascript
+<MagicNavigation
+  id="magicNavigation@main"
+  windowId={desktopId}
+  widgets={{contact: ContactWidget, invoice: InvoiceWidget}}
+/>
+```
 
 ### `widgets/magic-navigation/view-context.js`
 
-Contexte React qui fournit l'accès aux informations de la vue courante. Expose un HOC `withView` pour injecter les données de vue dans les composants.
+Contexte React (`ViewContext`) qui fournit l'accès à la vue courante (identifiant, propriétés, visibilité) à tous les descendants d'un onglet ou d'un dialogue. Expose le HOC **`withView(Component)`** pour injecter la vue en prop.
 
-### `widgets/dialog/widget.js`
+### `widgets/magic-navigation/with-window-number.js` / `with-is-main-window.js`
 
-Composant de base pour les dialogues HTML5 avec support des portails React, gestion des événements de fermeture et contrôle de l'affichage modal/non-modal. Inclut la gestion du clic extérieur pour fermeture.
+`withWindowNumber` connecte un composant à l'index de la fenêtre courante dans `windowIds` (via `DesktopIdContext`). `withIsMainWindow` dérive de ce numéro une prop booléenne `isMainWindow` (vrai pour la première fenêtre ouverte).
 
-### `widgets/element-helpers/element-has-direct-text.js`
+### `widgets/magic-navigation/with-parent-id.js`
 
-Fonction utilitaire qui détermine si un élément HTML contient du texte directement (pas dans des éléments enfants). Parcourt les nœuds enfants et vérifie la présence de nœuds texte non vides.
+HOC **`withParentId`** qui injecte l'identifiant du service de la vue courante (`serviceId`) comme prop `parentId`, utile pour ouvrir des dialogues enfants rattachés à la vue affichée.
 
-### `widgets/element-helpers/is-empty-area-element.js`
+### `widgets/detail-navigation/service.js`
 
-Fonction qui détermine si un élément et ses parents sont des zones "vides" (non-interactives) jusqu'à un élément d'arrêt donné. Utilise `isFlatElement` et `elementHasDirectText` pour la détection.
+Définit l'acteur instanciable **`DetailNavigation`**, dédié à l'affichage d'un panneau de détail à côté d'un widget « maître ».
 
-### `widgets/element-helpers/is-flat-element.js`
+#### État et modèle de données
 
-Identifie les éléments HTML non-interactifs (DIV, SECTION, etc.) qui n'ont pas de rôles ARIA interactifs. Utilisé pour déterminer les zones cliquables pour les interactions de fermeture.
+**`DetailNavigationShape`** : `parentWorkitemId` (identifiant du workitem parent), `detailId` (optionnel, entité actuellement affichée en détail), `detailServiceId` (optionnel, service instancié pour ce détail) et `detailHistory` (pile des détails précédemment consultés).
 
-### `widgets/get-modifiers/get-modifiers.js`
+#### Cycle de vie
 
-Normalise les modificateurs clavier entre plateformes. Sur macOS, inverse les touches Cmd et Ctrl pour une expérience utilisateur cohérente. Détecte automatiquement la plateforme via l'user agent.
+- **`create(id, desktopId, parentWorkitemId, services, detailId?)`** — Crée l'acteur, mémorise la table `services` (dictionnaire `type → classe Elf`) et ouvre éventuellement un détail initial.
+- **`delete()`** — Aucune action spécifique (vide).
 
-### `widgets/input-group/widget.js`
+#### Méthodes publiques
 
-Conteneur pour grouper des champs de saisie avec des boutons. Crée une interface unifiée avec bordures partagées et styles harmonisés pour les champs composés.
+- **`open(entityId, modifiers?)`** — Ouvre l'entité en détail ; si `Ctrl` est enfoncé, l'ouvre plutôt dans un nouvel onglet principal via `MagicNavigation` ; si l'entité est déjà affichée, ferme le détail (bascule).
+- **`changeDetail(detailId, useHistory = true)`** — Instancie le service correspondant au type de l'entité et remplace le détail courant, en détruisant l'ancien service.
+- **`backDetail()`** — Revient au détail précédent de l'historique, ou ferme le panneau si l'historique est vide.
+- **`closeDetail()`** — Ferme le détail courant et émet l'événement `closed`.
+- **`openNewTab(entityId, modifiers?)`** / **`openDetailInNewTab(modifiers?)`** — Ouvrent l'entité (ou le détail courant) dans un nouvel onglet de la navigation principale (`magicNavigation@main`).
+- **`replaceParent()`** — Remplace le widget du workitem parent par le détail actuellement affiché (navigation « plein écran » du détail).
 
-### `widgets/input-group/styles.js`
+### `widgets/detail-navigation/widget.js`
 
-Styles pour le groupement de champs avec gestion des bordures arrondies, couleurs de focus et états des boutons groupés. Utilise des sélecteurs CSS avancés pour les éléments adjacents.
+Composant React **`DetailNavigation.MainDetail`** qui affiche, via un `Splitter`, le contenu principal (enfants ou fonction de rendu recevant `{open, detailId, detailServiceId}`) et le panneau de détail correspondant au type de l'entité (`detailWidgets`, dictionnaire `type → composant`). Fournit dans les actions du détail des boutons « ouvrir dans un nouvel onglet » et « fermer le détail ».
 
-### `widgets/magic-action/widget.js`
+### `widgets/widget-with-nav/service.js`
 
-Composant d'action stylisé avec effets de survol animés, support des états sélectionné/désactivé et intégration avec le système de commandes Xcraft via `doFor`.
+Acteur instanciable **`WidgetWithNav`** qui garde la trace, par desktop, des dialogues ouverts depuis les widgets afin de pouvoir les fermer automatiquement (au démontage d'un composant ou lors de la réinitialisation d'un desktop).
 
-### `widgets/magic-action/styles.js`
+#### Méthodes publiques
 
-Styles pour les actions avec animations de taille au survol, effets de text-shadow pour l'état sélectionné et gestion des états désactivés.
+- **`openDialog(desktopId, args)`** — Ouvre un dialogue via `MagicNavigation.openDialog(...args)` et l'enregistre dans l'état.
+- **`waitClosed(desktopId, dialogId)`** — Attend la fermeture du dialogue puis nettoie son enregistrement.
+- **`closeDialogs(desktopId, dialogIds)`** / **`resetDesktop(desktopId)`** — Ferment un ensemble de dialogues, notamment tous ceux ouverts pour un desktop donné.
 
-### `widgets/magic-background/widget.js`
+### `widgets/widget-with-nav/widget.js`
 
-Composant de fond avec effets visuels dynamiques incluant des dégradés aurora et des images de fond qui s'adaptent au thème sombre/clair. Support des propriétés CSS personnalisées pour les animations et couleurs d'accent.
+Classe de base React **`WidgetWithNav`** (étend `WidgetWithQuest`) qui expose la méthode **`openDialogForResult(view, parentId)`** : ouvre un dialogue via l'acteur `WidgetWithNav` (identifiant conventionnel `widgetWithNav@magicNavigation@main`) et attend son résultat. Ferme automatiquement les dialogues restés ouverts au démontage du composant, et réinitialise les dialogues du desktop au premier montage.
 
-### `widgets/magic-background/styles.js`
+### `widgets/widget-with-quest/service.js`
 
-Styles avancés avec propriétés CSS personnalisées, dégradés animés, images de fond et adaptation automatique au thème via media queries. Inclut les effets aurora avec transitions fluides.
+Acteur singleton **`WidgetWithQuest`** (`Elf.Alone`) qui permet à un widget d'exécuter une quête sur un service backend et d'en récupérer le résultat.
 
-### `widgets/magic-box/widget.js`
+#### Méthodes publiques
 
-Conteneur moderne avec scroll automatique intégré, combinant MagicDiv et MagicScroll pour créer des zones de contenu avec design glassmorphism.
+- **`doQuest(questId, serviceId, questName, questArgs)`** — Invoque `service[questName](questArgs)` via `quest.getAPI` et stocke le résultat sous `results[questId]`.
+- **`clearResult(questId)`** — Supprime le résultat une fois consommé.
 
-### `widgets/magic-box-old/widget.js`
+### `widgets/widget-with-quest/widget.js`
 
-Version legacy du conteneur avec positionnement absolu, différents thèmes d'humeur (unicorn, sunset, velvet) et bouton de fermeture optionnel. Conservée pour compatibilité.
+Classe de base React **`WidgetWithQuest`** qui expose **`doQuest(serviceId, questName, questArgs)`** : génère un identifiant de quête, déclenche l'action `widgetWithQuest.doQuest`, attend (via une souscription au résultat backend et un composant interne `DidUpdate`) que le résultat apparaisse dans l'état, puis nettoie ce résultat. C'est le mécanisme bas niveau utilisé par `WidgetWithNav.openDialogForResult`.
 
-### `widgets/magic-button/widget.js`
+### `widgets/calendar-helpers.js`
 
-Bouton moderne avec états visuels avancés, support des icônes, spinner de chargement et différentes variantes (simple, grand, activé). Gestion automatique des spans pour le texte et optimisation des icônes SVG.
+Bibliothèque de fonctions utilitaires pures pour manipuler des dates calendaires (`plainDate` au format `YYYY-MM-DD`) et des plages horodatées (`zonedDateTime`), utilisée par `SmallCalendar`, `YearMonth` et les champs de date.
 
-### `widgets/magic-button/styles.js`
+- **`getMonthStart(plainDate, monthDiff?)`** / **`getMonthEnd(plainDate, monthDiff?)`** — Premier/dernier jour du mois, avec décalage optionnel.
+- **`addDays(plainDate, days)`** — Ajoute (ou retranche) un nombre de jours.
+- **`getWeekNumber(date)`** — Numéro de semaine ISO 8601.
+- **`getWeekStart(date?)`** — Premier jour (lundi) de la semaine contenant la date donnée.
+- **`setSameDay(plainDate, otherPlainDate)`** — Applique le jour du mois d'une autre date, en revenant au dernier jour valide du mois si nécessaire (utile lors des changements de mois/année dans les champs de date).
+- **`setMonth(plainDate, monthIndex)`** — Change le mois (0-11) en conservant le jour dans la limite du mois cible.
+- **`getMonthNames(locale, format, options?)`** — Génère les 12 noms de mois localisés, avec option de mise en majuscule initiale.
+- **`generateWeekStarts(startDate, numWeeks)`** — Génère les dates de début de `numWeeks` semaines consécutives.
+- **`generateDays(firstDate, numDays = 7)`** — Génère `numDays` jours consécutifs à partir d'une date.
+- **`eventIsInDay({start, end}, day)`** / **`eventIsInDays(event, firstDay, lastDay)`** — Déterminent si un événement (avec `start`/`end` au format `zonedDateTime`) recouvre un jour ou une plage de jours donnée.
 
-Styles complets pour les boutons avec états hover/active/focus, animations de scale, gestion des icônes et spinner CSS. Support des variantes et adaptation responsive.
+### `widgets/small-calendar/widget.js` et `widgets/small-calendar-grid/widget.js`
 
-### `widgets/magic-checkbox/widget.js`
+**`SmallCalendar`** est un sélecteur de date compact avec navigation par jour/mois/année (boutons et flèches), un menu déroulant pour choisir directement le mois, et un raccourci « aujourd'hui ». La navigation au clavier (flèches, entrée) est gérée par `handleKeyDown`. **`SmallCalendarGrid`** affiche la grille des semaines du mois (avec numéros de semaine) en s'appuyant sur `calendar-helpers.js` et met en surbrillance le jour sélectionné et le jour courant (via `CurrentDay`).
 
-Case à cocher stylisée avec support des petites tailles, états visuels cohérents avec le design system et gestion des labels intégrés.
+### `widgets/calendar-menu/widget.js` et `widgets/calendar-menu-content/widget.js`
 
-### `widgets/magic-checkbox/styles.js`
+**`CalendarMenu`** enveloppe un déclencheur (`children`) dans un `Menu` dont le contenu est un `CalendarMenuContent` : un petit calendrier (`SmallCalendar`) avec boutons Annuler/Valider et, si `allowEmpty`, un bouton Effacer.
 
-Styles pour les checkboxes avec animations de coche, états de focus et variantes de taille. Utilise des pseudo-éléments pour les coches personnalisées.
+### `widgets/year-month/widget.js`, `widgets/year-month-grid/widget.js`, `widgets/year-month-menu/widget.js`
 
-### `widgets/magic-color-field/widget.js`
+Équivalents de `SmallCalendar`/`SmallCalendarGrid`/`CalendarMenu` mais pour la sélection d'un couple année-mois (type `yearMonth`) plutôt qu'une date précise : **`YearMonth`** affiche deux grilles de 12 mois (année courante et suivante) via **`YearMonthsGrid`**, avec navigation par mois/année. **`YearMonthMenu`** propose le même sélecteur dans un menu déroulant, avec boutons Annuler/Valider/Effacer.
 
-Sélecteur de couleur combinant un champ texte et un bouton de prévisualisation avec sélecteur natif. Utilise InputGroup pour une présentation unifiée.
+### `widgets/magic-date-field/widget.js`, `widgets/magic-time-field/widget.js`, `widgets/magic-datetime-field/widget.js`
 
-### `widgets/magic-date-field/widget.js`
-
-Champ de date avec parsing intelligent, navigation clavier avancée (flèches pour incrémenter, Ctrl+flèches pour naviguer entre sections) et intégration avec xcraft-core-converters.
-
-### `widgets/magic-datetime-field/widget.js`
-
-Combinaison date/heure utilisant MagicDateField et MagicTimeField avec gestion des fuseaux horaires et parsing des dates ISO.
-
-### `widgets/magic-dialog/widget.js`
-
-Système de dialogue moderne avec support du déplacement (via Movable), fermeture par clic extérieur et gestion des événements clavier (Échap). Distinction entre dialogues modaux et non-modaux.
-
-### `widgets/magic-div/widget.js`
-
-Div stylisée avec effets glassmorphism, adaptation automatique au thème et variables CSS personnalisables pour un design cohérent.
-
-### `widgets/magic-emoji/widget.js`
-
-Sélecteur d'emoji utilisant emoji-mart avec menu déroulant, adaptation automatique du thème et localisation française.
-
-### `widgets/magic-emoji-picker/widget.js`
-
-Composant de sélection d'emoji standalone utilisant emoji-mart avec configuration complète (thème, couleurs, localisation).
-
-### `widgets/magic-inplace-input/widget.js`
-
-Champ d'édition en place avec apparition des bordures au survol/focus, idéal pour l'édition inline de contenus.
-
-### `widgets/magic-input/widget.js`
-
-Composant de base pour tous les champs de saisie avec support de l'édition contenteditable, navigation automatique entre champs (Entrée), intégration du sélecteur d'emoji et gestion avancée de la sélection de texte.
-
-### `widgets/magic-label/widget.js`
-
-Label stylisé avec layout flexbox pour aligner correctement les champs de saisie et leurs étiquettes.
+**`MagicDateField`** et **`MagicTimeField`** sont des champs texte spécialisés basés sur `MagicTextField`, avec parsing/formatage via `xcraft-core-converters`, navigation par sections au clavier (`Ctrl+←`/`Ctrl+→`) et incrémentation par flèches haut/bas (`Shift` pour un pas plus grand, ou pour incrémenter la semaine sur le champ date). Ils intègrent un bouton associé : un `CalendarMenu` pour la date, une icône d'horloge (non interactive) pour l'heure. **`MagicDatetimeField`** combine les deux, en gérant la construction/décomposition d'une valeur `zonedDateTime` unique.
 
 ### `widgets/magic-number-field/widget.js`
 
-Champ numérique avec boutons +/-, validation min/max, incrémentation par flèches (Shift pour x10) et parsing intelligent des valeurs.
+Champ numérique avec boutons +/- (`InputGroup`), validation `min`/`max`, incrémentation par flèches clavier (`Shift` multiplie le pas par 10) et parsing via `xcraft-core-converters`.
 
-### `widgets/magic-panel/widget.js`
+### `widgets/magic-color-field/widget.js`
 
-Panneau coulissant avec animation, bouton de fermeture et raccourcis clavier pour l'affichage/masquage.
+Champ combinant un `MagicTextField` (valeur texte de la couleur) et un bouton `MagicColorFieldButton` ouvrant un sélecteur de couleur natif (`<input type="color">`), avec aperçu de la couleur courante.
 
-### `widgets/magic-radio/widget.js`
+### `widgets/magic-trigger-field/widget.js`
 
-Bouton radio stylisé avec gestion des groupes, états visuels modernes et support des labels.
+Champ composite permettant de définir un déclencheur temporel relatif (ex. « 15 minutes avant le début de l'événement ») : combine un `MagicNumberField`, un `MagicSelect` pour l'unité de durée (secondes à semaines) et un `MagicSelect` pour la relation (avant/après le début/la fin), en s'appuyant sur `xcraft-core-converters/lib/duration.js` pour la décomposition/inversion des durées. Le paramètre `kind` (`'event'` ou `'task'`) adapte les libellés affichés.
 
-### `widgets/magic-scroll/widget.js`
+### `widgets/magic-input/widget.js`, `widgets/magic-text-field/widget.js`, `widgets/magic-inplace-input/widget.js`
 
-Zone de défilement avec styles optimisés et gestion des marges pour les titres en début de contenu.
+**`MagicInput`** est le composant bas niveau partagé par tous les champs texte : il gère indifféremment un `<input>`, un `<textarea>` (`rows`) ou une div `contenteditable` (`autoRows`, via le sous-composant interne `EditableDiv`), la navigation automatique vers le champ suivant à la touche Entrée, et un sélecteur d'emoji optionnel (`emojiPicker`, raccourci `Ctrl+Espace`) ouvert dans un `MagicDialog`. **`MagicTextField`** ajoute le style visuel standard et le support d'une `dataList`. **`MagicInplaceInput`** est une variante sans bordure visible tant que le champ n'est pas survolé/focalisé, pour l'édition en place.
 
 ### `widgets/magic-select/widget.js`
 
-Composant de sélection avec menu déroulant, support des options sous forme d'objet ou de tableau, rendu personnalisable des éléments et intégration avec le système Menu.
+Sélecteur basé sur `Menu`, acceptant soit des enfants `<option>`, soit une prop `options` (objet ou tableau `{value, text}`). Affiche la valeur sélectionnée (ou son libellé) dans le bouton déclencheur et propose la liste des choix dans le contenu du menu.
 
-### `widgets/magic-table/widget.js`
+### `widgets/magic-table/widget.js` et `widgets/magic-table/reducer.js`
 
-Tableau avancé avec tri multi-colonnes, sélection multiple, filtrage automatique et rendu personnalisable des cellules. Utilise un reducer pour gérer l'état de tri et un système d'observation des mutations pour la synchronisation DOM.
+**`MagicTable`** est un tableau avancé en CSS Grid supportant : le tri par colonne (ascendant/descendant/neutre, avec tri personnalisable via `sortCustom` ou un menu de filtrage `autoFilter`), la sélection multiple de lignes (case à cocher par ligne + « tout/aucun/inverser »), le rendu personnalisé des cellules (`renderItem`/`renderRow`) et l'insertion de séparateurs entre les lignes sélectionnées hors page et les lignes visibles. Le tri est appliqué directement sur les nœuds DOM (réordonnancement des enfants) plutôt que sur les données, via `MagicTableContainer.sort`. L'état de tri/menu est géré par le **reducer** `widgets/magic-table/reducer.js` (actions `INITIALISE`, `TOGGLE_MENU`, `SORT_COLUMN`), stocké dans le state `widgets` du backend et lu via `Widget.connect`.
 
-### `widgets/magic-table/reducer.js`
+### `widgets/magic-overlay/widget.js`
 
-Reducer Redux pour gérer l'état du tableau (tri, menu, colonnes). Gère les actions d'initialisation, basculement de menu et tri des colonnes avec cycle asc/desc/neutre.
+Composant générique d'affichage superposé (« overlay ») supportant plusieurs modes : `popover` (natif, non fermable au clic extérieur), `popover-closable` (ferme au clic extérieur), `popover-dialog` (popover rendu comme `<dialog>`) et `modal-dialog` (boîte de dialogue modale classique). Expose un contexte (`MagicOverlay.Context`) et des sous-composants `Button`, `Content`, `CloseButton` pour composer librement le déclencheur et le contenu.
 
-### `widgets/magic-table/styles.js`
+### `widgets/magic-dialog/widget.js`, `widgets/dialog/widget.js`, `widgets/cancelable-dialog/widget.js`, `widgets/menu-dialog/widget.js`
 
-Styles CSS Grid pour le tableau avec en-têtes collants, tri visuel, sélection de lignes et indicateurs de tri. Gestion des zebra stripes et états hover/active.
-
-### `widgets/magic-tag/widget.js`
-
-Étiquettes stylisées avec bordures arrondies, support des actions (onClick) et états désactivés.
-
-### `widgets/magic-text-field/widget.js`
-
-Champ de texte principal avec support du parsing/formatage, validation, sélecteur d'emoji optionnel et listes de données (datalist). Base pour la plupart des autres champs spécialisés.
-
-### `widgets/magic-time-field/widget.js`
-
-Champ d'heure avec parsing intelligent, navigation par sections (heures/minutes) et incrémentation par flèches avec support des pas personnalisés.
-
-### `widgets/magic-timer/widget.js`
-
-Composant de minuteur avec affichage temps réel, contrôles play/pause et calcul automatique de la durée écoulée.
+**`Dialog`** encapsule l'élément HTML natif `<dialog>` avec gestion de l'ouverture/fermeture programmatique (`show`/`showModal`/`close`) et rendu optionnel en portail. **`CancelableDialog`** ajoute une gestion personnalisée de l'événement d'annulation (touche Échap, clic extérieur) permettant de l'intercepter (`event.preventDefault()`), en contournant une limitation des navigateurs sur l'attribut `closedby`. **`MagicDialog`** combine `CancelableDialog` avec `Movable` (déplacement par glisser-déposer) et une fermeture au clic extérieur en mode non modal. **`MenuDialog`** est une variante de `Dialog` utilisée spécifiquement par le système `Menu`, avec sa propre gestion du clic extérieur.
 
 ### `widgets/magic-zen/widget.js`
 
-Mode plein écran avec fond personnalisable, notice d'aide pour la sortie (Échap) et rendu en portal pour l'isolation visuelle.
-
-### `widgets/main-tabs/widget.js`
-
-Onglets principaux avec états visuels avancés (actif, mis en évidence), support des thèmes et intégration avec TabLayout.
+Mode plein écran (« zen ») qui affiche son contenu dans un `Dialog` modal en plein écran avec un fond personnalisable (`MagicBackground` par défaut) et une notice temporaire rappelant le raccourci de sortie (Échap). Rendu neutre (retourne simplement `children`) lorsque `active` est faux.
 
 ### `widgets/menu/widget.js`
 
-Système de menu contextuel complet avec sous-menus, positionnement intelligent, navigation clavier et support des raccourcis. Gestion automatique de la position selon l'espace disponible à l'écran.
+Système de menu contextuel complet : bouton déclencheur (`Menu.Button`), contenu positionné dynamiquement (`Menu.Content`, avec calcul de position selon l'espace disponible à l'écran — `getStyle`), éléments (`Menu.Item`), titres (`Menu.Title`), séparateurs (`Menu.Hr`), lignes (`Menu.Row`) et sous-menus (`Menu.Submenu`, affichés au survol). Prend en charge l'ouverture via clic droit (menu contextuel, `onContextMenu`) et la navigation clavier (flèches haut/bas entre les éléments).
 
-### `widgets/menu/styles.js`
+### `widgets/checkbox-menu-items/widget.js`
 
-Styles pour le système de menu avec positionnement dynamique, effets glassmorphism, sous-menus et états d'interaction. Gestion des backdrop et animations.
+Liste d'éléments de menu à cocher (utilisée typiquement pour des filtres à choix multiples), avec actions groupées « Tout », « Aucun » et « Inverser », et gestion du clic simple (sélectionne uniquement cette valeur) versus `Ctrl+clic` (bascule cette valeur dans la sélection).
+
+### `widgets/magic-emoji/widget.js` et `widgets/magic-emoji-picker/widget.js`
+
+**`MagicEmojiPickerNC`** encapsule le composant `emoji-mart` (`@emoji-mart/react`) avec thème adaptatif clair/sombre et localisation française. **`MagicEmoji`** l'expose dans un `Menu` déclenché par un bouton affichant l'emoji actuellement sélectionné.
+
+### `widgets/popover/widget.js`
+
+Wrapper autour de l'API native Popover (`popover`, `showPopover`/`hidePopover`), avec gestion de l'ancrage (`source`, ou déduit de `style.positionAnchor`) et fermeture par la touche Échap (via une pile de gestionnaires partagée `ListenerStack` pour n'activer que le popover le plus récent).
+
+### `widgets/listener-stack/listener-stack.js`
+
+Utilitaire générique gérant une pile de gestionnaires d'événements `window` par type d'événement : seul le gestionnaire le plus récemment empilé (`push`) est appelé, ce qui permet par exemple à plusieurs dialogues empilés de ne réagir à la touche Échap que pour le dernier ouvert. Utilisé par `Popover` et `CancelableDialog`.
+
+### `widgets/element-helpers/`
+
+Trois fonctions utilitaires bas niveau utilisées pour déterminer si un clic a eu lieu dans une zone « vide » (non interactive) d'une fenêtre, afin de piloter le déplacement (`Movable`) ou la fermeture au clic extérieur des dialogues/overlays :
+
+- **`isFlatElement(element)`** — Vrai si la balise fait partie d'une liste de conteneurs non interactifs (`DIV`, `SECTION`, etc.) et ne porte pas de rôle ARIA interactif.
+- **`elementHasDirectText(element)`** — Vrai si l'élément contient directement du texte (hors éléments enfants).
+- **`isEmptyAreaElement(element, stopAtElement?)`** — Remonte l'arborescence depuis `element` jusqu'à `stopAtElement` en vérifiant que chaque ancêtre est « plat » et sans texte direct.
 
 ### `widgets/movable/widget.js`
 
-Rend les éléments déplaçables par glisser-déposer avec contraintes de fenêtre, détection des zones vides et gestion fluide du curseur.
+Rend un conteneur déplaçable par glisser-déposer (pointeur), en ne déclenchant le déplacement que si le point de saisie est dans une zone vide (`isEmptyAreaElement`) et en contraignant la translation aux limites de la fenêtre.
+
+### `widgets/resizer/widget.js`
+
+Composant permettant de redimensionner son contenu par glisser-déposer d'une poignée (coin choisi via la prop `position`), avec tailles minimales configurables.
+
+### `widgets/get-modifiers/get-modifiers.js`
+
+Normalise les modificateurs clavier/souris entre plateformes : sur macOS, inverse `ctrlKey` et `metaKey` pour aligner le comportement sur les conventions du système (`Cmd` prend la place de `Ctrl`). Exporte aussi `getPlatform(userAgent)`.
+
+### `widgets/time-interval/`
+
+Ensemble d'utilitaires pour réagir à l'écoulement du temps « calendaire » plutôt qu'à un simple minuteur :
+
+- **`get-date.js`** — Décompose une `Date` en champs textuels paddés (année, mois, jour, heures, minutes, secondes).
+- **`time-interval.js`** — Fonction `timeInterval(fct, type, options?)` qui planifie l'appel de `fct` à chaque changement de jour/heure/minute/seconde (calcul dynamique du prochain instant, avec un `maxTick` pour rattraper rapidement une éventuelle mise en veille du système) ; retourne une fonction d'arrêt.
+- **`current-day.js`** / **`current-minute.js`** — Composants React « render props » qui exposent respectivement le jour courant (`YYYY-MM-DD`) et la minute courante (`YYYY-MM-DDTHH:mm`), mis à jour automatiquement via `timeInterval`. Utilisés par `SmallCalendarGrid` et `YearMonthsGrid` pour mettre en évidence le jour/mois courant.
+
+### `widgets/view-background/widget.js`
+
+Fond stylisé (`MagicDiv`) pour le contenu d'une vue de navigation, qui adapte son style (`data-is-dialog`) selon que la vue affichée est un onglet ou un dialogue (déduit du préfixe `dialog` de l'identifiant de vue, obtenu via `ViewContext`).
+
+### `widgets/main-tabs/widget.js` et `widgets/tab-layout/widget.js`
+
+**`TabLayout`** structure verticalement une zone d'onglets et son contenu. **`TabLayout.Tabs`** gère le réordonnancement des onglets par glisser-déposer natif HTML5 (calcul de la position d'insertion selon la souris, y compris sur plusieurs lignes). **`MainTabs`** est une spécialisation stylée de `TabLayout.Tabs` utilisée par `MagicNavigation` pour la barre d'onglets principale.
 
 ### `widgets/splitter/widget.js`
 
-Diviseur redimensionnable utilisant react-splitter-layout avec styles personnalisés et indicateurs visuels en pointillés.
+Diviseur redimensionnable basé sur `react-splitter-layout`, avec style personnalisé (ligne pointillée au survol) et support de l'orientation verticale/horizontale et du redimensionnement en pourcentage.
 
-### `widgets/tab-layout/widget.js`
+### `widgets/magic-button/widget.js`, `widgets/magic-checkbox/widget.js`, `widgets/magic-radio/widget.js`, `widgets/magic-tag/widget.js`
 
-Layout pour onglets avec gestion des états actifs, événements de clic et structure flexbox optimisée.
+Composants de base réutilisés dans tout le module : **`MagicButton`** (variantes `simple`, `big`, `enabled`, `underlined`, indicateur de chargement `spinner`), **`MagicCheckbox`**/**`MagicRadio`** (cases à cocher/boutons radio stylisés, avec variante `small` pour la checkbox) et **`MagicTag`** (étiquette cliquable ou non, avec état désactivé).
+
+### `widgets/magic-box/widget.js`, `widgets/magic-box-old/widget.js`, `widgets/magic-div/widget.js`, `widgets/magic-background/widget.js`, `widgets/magic-panel/widget.js`, `widgets/input-group/widget.js`, `widgets/magic-scroll/widget.js`
+
+Composants de mise en page : **`MagicDiv`** (bloc au style glassmorphism de base), **`MagicBox`** (`MagicDiv` + défilement intégré via `MagicScroll`), **`MagicBackground`** (fond plein écran avec dégradés animés adaptatifs), **`MagicPanel`** (panneau latéral rétractable avec raccourci), **`InputGroup`** (regroupement visuel de champs/boutons adjacents) et **`MagicBoxOld`** (variante historique conservée pour compatibilité, avec thèmes de couleur « mood »).
+
+### `widgets/magic-action/widget.js`, `widgets/magic-wave/widget.js`, `widgets/magic-timer/widget.js`, `widgets/inline-icon/widget.js`, `widgets/magic-label/widget.js`, `widgets/max-text-width/widget.js`
+
+**`MagicAction`** est un lien d'action textuel avec agrandissement au survol. **`MagicWave`** affiche une animation de barres (type égaliseur audio) à hauteur/vitesse aléatoires, utile comme indicateur d'activité (ex. enregistrement vocal). **`MagicTimer`** est un chronomètre avec bouton play/pause et affichage du temps écoulé mis à jour chaque seconde (`TimerUpdater`). **`InlineIcon`** aligne verticalement une icône MDI dans du texte. **`MagicLabel`** aligne un libellé et son champ associé. **`MaxTextWidth`** réserve la largeur du plus long texte possible parmi une liste, pour éviter les sauts de mise en page lors du changement de valeur affichée (ex. nom de mois).
 
 ### `widgets/with-computed-size/widget.js`
 
-HOC pour calculer la taille des éléments avec rendu conditionnel, utile pour le positionnement dynamique des menus et dialogues.
+Composant « render props » qui mesure la taille réelle de son contenu après montage (`getBoundingClientRect`, avec `ResizeObserver` optionnel via `observeResize`) tout en le gardant invisible pendant la mesure ; utilisé notamment par `Menu.Content` pour calculer la position optimale d'un menu selon sa taille réelle.
 
----
+### `test/navigation.spec.js`
 
-_Ce document a été mis à jour pour refléter l'état actuel du module goblin-magic avec ses fonctionnalités complètes de navigation et d'interface utilisateur modernes._
+Suite de tests unitaires (Mocha/Chai) exécutés via `Elf.trial` sur `MagicNavigationLogic`, validant en détail la méthode `moveTab` : réordonnancement au sein d'un même panneau et déplacement entre deux panneaux, avec vérification de l'ordre final des onglets dans chaque cas.
+
+## Licence
+
+Ce module est distribué sous [licence MIT](./LICENSE).
+
+_Ce contenu a été généré par IA_
+
+[xcraft-core-goblin]: https://github.com/Xcraft-Inc/xcraft-core-goblin
+[xcraft-core-stones]: https://github.com/Xcraft-Inc/xcraft-core-stones
+[xcraft-core-shredder]: https://github.com/Xcraft-Inc/xcraft-core-shredder
+[xcraft-core-utils]: https://github.com/Xcraft-Inc/xcraft-core-utils
+[xcraft-core-converters]: https://github.com/Xcraft-Inc/xcraft-core-converters
