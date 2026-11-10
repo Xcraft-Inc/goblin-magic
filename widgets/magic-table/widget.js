@@ -493,9 +493,9 @@ let MagicTable = class extends Widget {
               let sortIcon = null;
               if (isSorted) {
                 if (this.props.sortOrder === 'asc') {
-                  sortIcon = mdiChevronDown;
-                } else {
                   sortIcon = mdiChevronUp;
+                } else {
+                  sortIcon = mdiChevronDown;
                 }
               }
               if (col.sortable) {
